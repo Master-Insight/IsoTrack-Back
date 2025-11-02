@@ -1,0 +1,80 @@
+🧱 1. Tailwind Config — Paleta de colores
+
+Agregá esto en tu tailwind.config.mjs (o .ts):
+
+theme: {
+  extend: {
+    colors: {
+      primary: {
+        DEFAULT: '#2563EB', // azul principal (Track)
+        light: '#3B82F6',
+        dark: '#1E40AF',
+      },
+      accent: {
+        DEFAULT: '#22D3EE', // celeste acento (check / detalles)
+        light: '#38E0F2',
+        dark: '#0EA5E9',
+      },
+      ink: {
+        DEFAULT: '#0F172A', // texto oscuro (Iso)
+        light: '#1E293B',
+        dark: '#E2E8F0',
+      },
+      paper: {
+        DEFAULT: '#FFFFFF', // fondo base
+        dark: '#0B1220',
+      },
+    },
+  },
+},
+
+🎨 2. Estilos utilitarios
+
+En tu CSS global (src/styles/global.css o app.css):
+
+/* --- ISO TRACK Brand Context --- */
+.isotrack {
+  @apply text-ink fill-ink;
+}
+
+.isotrack-dark {
+  @apply text-paper fill-paper;
+}
+
+.isotrack-accent {
+  @apply text-accent fill-accent;
+}
+
+.isotrack-primary {
+  @apply text-primary fill-primary;
+}
+
+🌗 4. Uso en HTML / Astro
+<!-- Icono solo -->
+<img src="/assets/isotrack-icon.svg" class="w-10 h-10 text-primary" alt="IsoTrack" />
+
+<!-- Logotipo horizontal -->
+<img src="/assets/isotrack-logo-horizontal.svg" class="h-10 fill-current text-ink" alt="IsoTrack" />
+
+<!-- Versión dark -->
+<img src="/assets/isotrack-logo-horizontal.svg" class="h-10 fill-current text-paper dark:text-primary" alt="Is
+
+📘 5. (Opcional) README para /assets
+# IsoTrack Brand Assets
+
+## Archivos
+- `isotrack-icon.svg` → solo símbolo (versión “I”)
+- `isotrack-logo-horizontal.svg` → logo principal
+- `isotrack-logo-stacked.svg` → logo vertical/apilado
+
+## Colores de referencia
+| Rol | Nombre | Hex |
+|------|---------|------|
+| Primario | `primary` | `#2563EB` |
+| Acento | `accent` | `#22D3EE` |
+| Tinta | `ink` | `#0F172A` |
+| Fondo | `paper` | `#FFFFFF` |
+
+## Ejemplo de uso
+```html
+<img src="/assets/isotrack-logo-horizontal.svg" class="h-8 text-primary fill-current" alt="IsoTrack" />
