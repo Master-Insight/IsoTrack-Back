@@ -1,19 +1,18 @@
-# app/modules/blanck/logic/services.py
+# app/modules/processes/logic/service.py
+"""Process logic layer."""
+
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import List, Optional
 
-from app.config.settings import settings
-from app.libraries.customs.base_service import BaseService
-from app.libraries.exceptions.app_exceptions import (
-    AuthError,
-    NotFoundError,
-    ValidationError,
-)
+from ..dao.memory import InMemoryProcessDAO
 
-from ..data.dao import QuotationDAO
+ProcessPayload = dict
 
 
-class BlanckService(BaseService):
-    def __init__(self) -> None:
-        super().__init__(BlanckDAO())
+class ProcessService:
+    def __init__(self, dao: Optional[InMemoryProcessDAO] = None) -> None:
+        self._dao = dao or InMemoryProcessDAO()
+
+    def list_processes(self) -> List[ProcessPayload]:
+        return self._dao.list_processes()
