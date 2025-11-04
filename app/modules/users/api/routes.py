@@ -1,11 +1,16 @@
 # app/modules/users/api/routes.py
+from __future__ import annotations
+
 from typing import List, Optional
 
 from fastapi import APIRouter, Depends, Query
 
+"""Public API routes for user management."""
+
 from app.libraries.auth.dependencies import get_current_user
 from app.libraries.auth.roles import require_role
 from app.libraries.utils.response_models import ApiResponse
+
 from .controller import UserController
 from .schemas import (
     DeleteUserResponse,
@@ -14,6 +19,7 @@ from .schemas import (
     User,
     UserCreate,
     UserLogin,
+    UserUpdate,
 )
 
 router = APIRouter()
@@ -51,7 +57,16 @@ def list_users(
     return controller.list_users(current_user, company_id)
 
 
-@router.delete("/delete/{user_id}", response_model=ApiResponse[DeleteUserResponse])
+@router.put("/{user_id}", response_model=ApiResponse[User])
+def update_user(
+    user_id: str,
+    payload: UserUpdate,
+    current_user=Depends(require_role(["root", "admin"])),
+):
+    return controller.update_user(current_user, user_id, payload)
+
+
+@router.delete("/{user_id}", response_model=ApiResponse[DeleteUserResponse])
 def delete_user(
     user_id: str,
     current_user=Depends(require_role(["root", "admin"])),

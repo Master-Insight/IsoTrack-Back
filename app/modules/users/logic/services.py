@@ -5,14 +5,24 @@ from __future__ import annotations
 from typing import Any, Dict, Optional
 
 from app.libraries.customs.base_service import BaseService
-from app.libraries.exceptions.app_exceptions import AuthError, ValidationError
+from app.libraries.exceptions.app_exceptions import (
+    AuthError,
+    NotFoundError,
+    ValidationError,
+)
 
 from ..data.dao import UserDAO
+from .supabase_auth_gateway import SupabaseAuthGateway
 
 
 class UserService(BaseService):
-    def __init__(self, dao: Optional[UserDAO] = None) -> None:
+    def __init__(
+        self,
+        dao: Optional[UserDAO] = None,
+        auth_gateway: Optional[SupabaseAuthGateway] = None,
+    ) -> None:
         super().__init__(dao or UserDAO())
+        self.auth_gateway = auth_gateway or SupabaseAuthGateway()
 
     def register_user(
         self,
@@ -152,6 +162,40 @@ class UserService(BaseService):
 
         return self.dao.filter(company_id=target_company)
 
+    def update_user(self, *, profile: Dict, user_id: str, updates: Dict[str, Any]):
+        user = self.get_by_id(user_id)
+
+        if not updates:
+            return user
+
+        acting_role = profile.get("role")
+
+        if acting_role == "admin":
+            if user.get("company_id") != profile.get("company_id"):
+                raise AuthError("No puedes modificar usuarios de otra empresa")
+            if user.get("role") == "root":
+                raise AuthError("No puedes modificar usuarios root")
+            updates["company_id"] = profile.get("company_id")
+
+        if "role" in updates and acting_role != "root":
+            raise AuthError("Solo un usuario root puede cambiar roles")
+
+        target_company = updates.get("company_id")
+        if target_company and acting_role != "root":
+            if target_company != profile.get("company_id"):
+                raise AuthError("No puedes asignar usuarios a otra empresa")
+
+        sanitized_updates = {k: v for k, v in updates.items() if v is not None}
+        if not sanitized_updates:
+            return user
+
+        updated = self.update(
+            user_id,
+            sanitized_updates,
+            audit_metadata={"updated_fields": list(sanitized_updates.keys())},
+        )
+        return updated
+
     def get_user(self, user_id: str):
         return self.get_by_id(user_id)
 
@@ -176,9 +220,27 @@ class UserService(BaseService):
             # 3️⃣ Eliminar usuario en Supabase Auth (requiere Service Role Key)
             self.auth_gateway.delete_user(user_id)
 
-            return {"user": {"id": user_id, "email": user.get("email")}}
+            return {
+                "user": {"id": user_id, "email": user.get("email")},
+                "message": f"Usuario {user.get('email')} eliminado correctamente",
+            }
 
         except NotFoundError:
             raise
         except Exception as e:
             raise AuthError("Error al eliminar usuario", details={"error": str(e)})
+
+    def ensure_has_company(self, profile: Dict[str, Any]) -> str:
+        company_id = profile.get("company_id")
+        if not company_id:
+            raise ValidationError("El usuario no está asociado a ninguna empresa")
+        return company_id
+
+    def ensure_can_access_company(
+        self, profile: Dict[str, Any], company_id: str
+    ) -> None:
+        role = profile.get("role")
+        if role == "root":
+            return
+        if company_id != profile.get("company_id"):
+            raise AuthError("No tienes permiso para acceder a esta empresa")

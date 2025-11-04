@@ -1,5 +1,8 @@
 # app/libraries/utils/response_builder.py
+from __future__ import annotations
+
 from typing import Optional, TypeVar
+
 from fastapi import HTTPException
 
 from app.libraries.utils.response_models import ApiResponse, ErrorResponse

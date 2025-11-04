@@ -25,8 +25,7 @@ class UserBase(BaseModel):
         default=None, description="Empresa a la que pertenece el usuario"
     )
     full_name: Optional[str] = Field(default=None, description="Nombre completo")
-    phone: Optional[str] = Field(default=None, description="Teléfono de contacto")
-    active: bool = Field(default=True, description="Estado de la cuenta")
+    position: Optional[str] = Field(default=None, description="Cargo o puesto")
 
 
 class UserCreate(UserBase):
@@ -34,9 +33,18 @@ class UserCreate(UserBase):
     role: RoleEnum = RoleEnum.user
 
 
+class UserUpdate(BaseModel):
+    company_id: Optional[str] = Field(
+        default=None, description="Empresa a la que pertenece el usuario"
+    )
+    full_name: Optional[str] = Field(default=None, description="Nombre completo")
+    position: Optional[str] = Field(default=None, description="Cargo o puesto")
+    role: Optional[RoleEnum] = Field(default=None, description="Rol del usuario")
+
+
 class User(UserBase):
     id: str
-    role: Optional[RoleEnum] = RoleEnum.user
+    role: RoleEnum = RoleEnum.user
     created_at: Optional[datetime] = None
 
     class Config:
