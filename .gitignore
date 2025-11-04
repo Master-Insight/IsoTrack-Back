@@ -1,0 +1,49 @@
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Archivos de entorno virtual
+.venv/
+venv/
+ENV/
+env/
+*.env
+
+# Archivos de dependencias compilados
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ---- Logs ----
+*.log
+logs/
+*.out
+
+# ---- IDEs / Editor ----
+.vscode/
+.idea/
+*.swp
+
+# ---- Testing / Coverage ----
+.coverage
+htmlcov/
+.tox/
+pytest_cache/
+.mypy_cache/
+.pytest_cache/
+.dmypy.json
+
+# ---- FastAPI / Uvicorn ----
+# Archivos de recarga automática o temporales
+*.pid
+
+# ---- Sistema ----
+.DS_Store
+Thumbs.db
+
+# ---- Otros ----
