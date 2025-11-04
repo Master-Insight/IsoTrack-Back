@@ -1,23 +1,23 @@
-# app\modules\companies\api\schemas.py
-"""Esquemas para compañías."""
+"""Schemas for company endpoints."""
 
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field
 
 
 class CompanyBase(BaseModel):
-    name: str = Field(..., description="Nombre de la concesionaria")
-    description: Optional[str] = Field(
-        default=None, description="Descripción comercial de la empresa"
+    name: str = Field(..., description="Nombre legal de la empresa")
+    brand_logo: Optional[str] = Field(
+        default=None,
+        description="URL opcional al logo de la empresa",
     )
-    tax_id: Optional[str] = Field(default=None, description="CUIL / CUIT")
-    phone: Optional[str] = Field(default=None, description="Teléfono principal")
-    address: Optional[str] = Field(default=None, description="Dirección legal")
-    logo_url: Optional[HttpUrl] = Field(default=None, description="Logo para branding")
+    theme: Optional[dict[str, Any]] = Field(
+        default=None,
+        description="Configuración de colores y branding",
+    )
 
 
 class CompanyCreate(CompanyBase):
@@ -25,12 +25,13 @@ class CompanyCreate(CompanyBase):
 
 
 class CompanyUpdate(BaseModel):
-    name: Optional[str] = None
-    description: Optional[str] = None
-    tax_id: Optional[str] = None
-    phone: Optional[str] = None
-    address: Optional[str] = None
-    logo_url: Optional[HttpUrl] = None
+    name: Optional[str] = Field(default=None, description="Nombre de la empresa")
+    brand_logo: Optional[str] = Field(
+        default=None, description="URL opcional al logo de la empresa"
+    )
+    theme: Optional[dict[str, Any]] = Field(
+        default=None, description="Configuración de colores y branding"
+    )
 
 
 class Company(CompanyBase):

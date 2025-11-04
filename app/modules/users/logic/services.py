@@ -1,23 +1,18 @@
-# app/modules/users/logic/services.py
+"""Business logic for user profiles."""
+
 from __future__ import annotations
 
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from app.libraries.customs.base_service import BaseService
-from app.libraries.exceptions.app_exceptions import (
-    AuthError,
-    NotFoundError,
-    ValidationError,
-)
-from .supabase_auth_gateway import SupabaseAuthGateway
+from app.libraries.exceptions.app_exceptions import AuthError, ValidationError
 
 from ..data.dao import UserDAO
 
 
 class UserService(BaseService):
-    def __init__(self, auth_gateway: Optional[SupabaseAuthGateway] = None):
-        super().__init__(UserDAO())
-        self.auth_gateway = auth_gateway or SupabaseAuthGateway()
+    def __init__(self, dao: Optional[UserDAO] = None) -> None:
+        super().__init__(dao or UserDAO())
 
     def register_user(
         self,
