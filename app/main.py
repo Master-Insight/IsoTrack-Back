@@ -11,7 +11,7 @@ from app.middleware.request_context import RequestContextLogMiddleware
 from app.modules.routes import register_routes
 
 # 🔹 Lista de orígenes permitidos
-origins = ["http://localhost:3000", "http://localhost:4321/"]
+origins = ["http://localhost:3000", "http://localhost:4321"]
 
 
 def create_app() -> FastAPI:
