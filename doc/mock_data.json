@@ -1,17 +1,74 @@
 {
-  "user_profiles": [
-    {
-      "id": "user-1",
-      "email": "demo@example.com",
-      "company_id": "company-1",
-      "first_name": "Demo",
-      "last_name": "User"
-    }
-  ],
   "companies": [
     {
-      "id": "company-1",
-      "name": "Empresa Demo"
+      "id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "name": "IsoTrack Root Company"
     }
-  ]
+  ],
+  "user_profiles": [
+    {
+      "id": "05dc56fe-10eb-41d1-9305-340de88c5296",
+      "email": "insightdev@isotrack.com",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "full_name": "Root",
+      "position": null,
+      "role": "root",
+      "created_at": "2025-11-06T02:53:43.162121Z"
+    }
+  ],
+  "documents": [
+    {
+      "id": "d251ad59-54e2-44ec-bd7f-174d7dca2b8c",
+      "title": "Manual de Calidad ISO 9001",
+      "code": "MC-ISO9001",
+      "type": "POE",
+      "process_id": null,
+      "owner_id": "05dc56fe-10eb-41d1-9305-340de88c5296",
+      "description": "Manual maestro con la política de calidad, responsabilidades y mapa de procesos de la organización conforme a la norma ISO 9001:2015.",
+      "active": true,
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "created_at": "2025-11-09T21:20:58.394212Z",
+      "updated_at": "2025-11-09T21:57:35.211599Z",
+      "status": null,
+      "category": null,
+      "tags": [],
+      "next_review_at": null
+    },
+    {
+      "id": "c76db39f-939e-4086-abbf-c2ffea845873",
+      "title": "Procedimiento de Inducción SST",
+      "code": "PR-SST-014",
+      "type": "POE",
+      "process_id": null,
+      "owner_id": "05dc56fe-10eb-41d1-9305-340de88c5296",
+      "description": "Procedimiento obligatorio para la inducción de personal nuevo y contratistas en materia de seguridad y salud ocupacional.",
+      "active": true,
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "created_at": "2025-11-09T22:38:22.123865Z",
+      "updated_at": "2025-11-09T22:38:22.123865Z",
+      "status": null,
+      "category": null,
+      "tags": [],
+      "next_review_at": null
+    },
+    {
+      "id": "be6f8603-366a-42df-8cd1-3077888c8053",
+      "title": "Instructivo de Manejo de Residuos Peligrosos",
+      "code": "IN-AMB-022",
+      "type": "POE",
+      "process_id": null,
+      "owner_id": "05dc56fe-10eb-41d1-9305-340de88c5296",
+      "description": "Instructivo detallado para la segregación, almacenamiento y disposición de residuos peligrosos según ISO 14001.",
+      "active": true,
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "created_at": "2025-11-09T22:39:23.805073Z",
+      "updated_at": "2025-11-09T22:39:23.805073Z",
+      "status": null,
+      "category": null,
+      "tags": [],
+      "next_review_at": null
+    }
+  ],
+  "document_versions": [],
+  "document_reads": []
 }
