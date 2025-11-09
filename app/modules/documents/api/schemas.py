@@ -22,6 +22,8 @@ class DocumentStatus(str, Enum):
     BORRADOR = "borrador"
     APROBADO = "aprobado"
     PUBLICADO = "publicado"
+    REVISION = "en_revision"
+    VIGENTE = "vigente"
 
 
 class DocumentBase(BaseModel):
@@ -38,6 +40,8 @@ class DocumentBase(BaseModel):
         default=None, description="Descripción o resumen del contenido"
     )
     active: bool = Field(default=True, description="Indica si el documento está activo")
+    category: Optional[str] = None
+    tags: Optional[List[str]] = None
 
 
 class DocumentCreate(DocumentBase):
@@ -62,6 +66,9 @@ class DocumentUpdate(BaseModel):
     description: Optional[str] = None
     active: Optional[bool] = None
     company_id: Optional[str] = None
+    category: Optional[str] = None
+    tags: Optional[List[str]] = None
+    nextReviewAt: Optional[datetime] = None
 
 
 class Document(DocumentBase):
@@ -85,7 +92,9 @@ class DocumentVersionBase(BaseModel):
     external_url: Optional[str] = Field(
         default=None, description="URL externa opcional"
     )
-    notes: Optional[str] = Field(default=None, description="Notas o comentarios de la versión")
+    notes: Optional[str] = Field(
+        default=None, description="Notas o comentarios de la versión"
+    )
     approved_by: Optional[str] = Field(
         default=None, description="Usuario que aprobó la versión"
     )
@@ -184,9 +193,7 @@ class DocumentListItem(Document):
     )
     versions: List[DocumentVersionListItem] = Field(default_factory=list)
     reads: List[DocumentReadSummary] = Field(default_factory=list)
-    next_review_at: Optional[datetime] = Field(
-        default=None, alias="nextReviewAt"
-    )
+    next_review_at: Optional[datetime] = Field(default=None, alias="nextReviewAt")
 
     model_config = ConfigDict(populate_by_name=True, from_attributes=True)
 
