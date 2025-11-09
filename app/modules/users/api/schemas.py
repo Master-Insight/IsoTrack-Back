@@ -52,7 +52,8 @@ class User(UserBase):
 
 
 class LoginResponse(BaseModel):
-    token: str
+    accessToken: str
+    refresh_token: str
     profile: Optional[User] = None
 
 
