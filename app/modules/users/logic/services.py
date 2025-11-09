@@ -123,13 +123,15 @@ class UserService(BaseService):
     def login(self, email: str, password: str):
         try:
             auth_user = self.auth_gateway.sign_in_with_password(email, password)
+            # print(auth_user)
 
             if not auth_user.user:
                 raise AuthError("Credenciales inválidas")
 
             profile = self.dao.get_by_email(email)
             return {
-                "token": auth_user.session.access_token,
+                "accessToken": auth_user.session.access_token,
+                "refresh_token": auth_user.session.refresh_token,
                 "profile": profile,
             }
 
