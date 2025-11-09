@@ -86,6 +86,39 @@ class JsonFormatter(logging.Formatter):
         return value
 
 
+# --- COLOR FORMATTER ---
+class ColorFormatter(logging.Formatter):
+    """Formatter con colores ANSI para salida de consola."""
+
+    COLORS = {
+        "DEBUG": "\033[36m",  # Cyan
+        "INFO": "\033[32m",  # Verde
+        "WARNING": "\033[33m",  # Amarillo
+        "ERROR": "\033[31m",  # Rojo
+        "CRITICAL": "\033[41m",  # Rojo con fondo
+    }
+    RESET = "\033[0m"
+    DIM = "\033[2m"
+
+    def format(self, record: logging.LogRecord) -> str:
+        color = self.COLORS.get(record.levelname, self.RESET)
+        levelname_colored = f"{color}{record.levelname}{self.RESET}"
+        asctime_colored = (
+            f"{self.DIM}{self.formatTime(record, '%Y-%m-%d %H:%M:%S')}{self.RESET}"
+        )
+
+        log_str = (
+            f"{asctime_colored} | {levelname_colored} | {record.environment} | {record.name} | "
+            f"req={getattr(record, 'request_id', '-')} | user={getattr(record, 'user_id', '-')} | "
+            f"{record.getMessage()}"
+        )
+
+        if record.exc_info:
+            log_str += f"\n{self.formatException(record.exc_info)}"
+
+        return log_str
+
+
 def set_request_id(request_id: str | None) -> None:
     """Guarda el identificador de petición en el contexto actual."""
 
@@ -159,6 +192,7 @@ def build_logging_config() -> Dict[str, Any]:
         },
         "formatters": {
             "console": {
+                "()": ColorFormatter,
                 "format": (
                     "%(asctime)s | %(levelname)s | %(environment)s | %(name)s | "
                     "req=%(request_id)s | user=%(user_id)s | %(message)s"
