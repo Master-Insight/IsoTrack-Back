@@ -6,7 +6,7 @@ from datetime import datetime, date
 from enum import Enum
 from typing import List, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict, field_validator
 
 
 class DocumentType(str, Enum):
@@ -135,5 +135,61 @@ class DocumentDetail(Document):
     current_user_read: Optional[DocumentRead] = None
 
 
+class DocumentVersionListItem(BaseModel):
+    id: str
+    document_id: str
+    version: Optional[str] = None
+    status: Optional[str] = None
+    file_url: Optional[str] = None
+    external_url: Optional[str] = None
+    notes: Optional[str] = None
+    approved_by: Optional[str] = None
+    approved_by_name: Optional[str] = None
+    approved_at: Optional[datetime] = None
+    format: Optional[str] = None
+    created_at: Optional[datetime] = None
+
+    model_config = ConfigDict(populate_by_name=True, from_attributes=True)
+
+    @field_validator("version", mode="before")
+    @classmethod
+    def _coerce_version(cls, value):  # noqa: D401 - simple coercion helper
+        """Ensure version values are serialized as strings when present."""
+        if value is None:
+            return value
+        return str(value)
+
+
+class DocumentReadSummary(BaseModel):
+    id: Optional[str] = None
+    document_id: Optional[str] = None
+    user_id: str
+    user: Optional[str] = None
+    position: Optional[str] = None
+    read_at: datetime = Field(alias="readAt")
+    due_date: Optional[date] = Field(default=None, alias="dueDate")
+
+    model_config = ConfigDict(populate_by_name=True, from_attributes=True)
+
+
+class DocumentListItem(Document):
+    owner: Optional[str] = None
+    status: Optional[str] = None
+    category: Optional[str] = None
+    tags: List[str] = Field(default_factory=list)
+    created_at: Optional[datetime] = Field(default=None, alias="createdAt")
+    updated_at: Optional[datetime] = Field(default=None, alias="updatedAt")
+    current_version: Optional[DocumentVersionListItem] = Field(
+        default=None, alias="currentVersion"
+    )
+    versions: List[DocumentVersionListItem] = Field(default_factory=list)
+    reads: List[DocumentReadSummary] = Field(default_factory=list)
+    next_review_at: Optional[datetime] = Field(
+        default=None, alias="nextReviewAt"
+    )
+
+    model_config = ConfigDict(populate_by_name=True, from_attributes=True)
+
+
 class DocumentListResponse(BaseModel):
-    items: List[Document]
+    items: List[DocumentListItem]

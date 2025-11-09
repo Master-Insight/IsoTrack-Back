@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Sequence
 
 from app.libraries.customs.supabase_dao import CustomSupabaseDAO
 
@@ -32,6 +32,18 @@ class DocumentVersionDAO(CustomSupabaseDAO):
         )
         return self._execute(query, "list_for_document")
 
+    def list_for_documents(self, document_ids: Sequence[str]):
+        if not document_ids:
+            return []
+
+        query = (
+            self.table.select("*")
+            .in_("document_id", list(document_ids))
+            .order("document_id", desc=False)
+            .order("version", desc=False)
+        )
+        return self._execute(query, "list_for_documents")
+
 
 class DocumentReadDAO(CustomSupabaseDAO):
     def __init__(self) -> None:
@@ -47,6 +59,13 @@ class DocumentReadDAO(CustomSupabaseDAO):
         if user_id:
             query = query.eq("user_id", user_id)
         return self._execute(query, "list_reads")
+
+    def list_for_documents(self, document_ids: Sequence[str]):
+        if not document_ids:
+            return []
+
+        query = self.table.select("*").in_("document_id", list(document_ids))
+        return self._execute(query, "list_reads_for_documents")
 
     def get_user_read(
         self, document_id: str, user_id: str, version: Optional[int] = None

@@ -12,6 +12,7 @@ from .schemas import (
     Document,
     DocumentCreatePayload,
     DocumentDetail,
+    DocumentListItem,
     DocumentRead,
     DocumentReadCreate,
     DocumentUpdate,
@@ -31,14 +32,17 @@ class DocumentController:
         company_id: str | None,
         process_id: str | None,
         include_inactive: bool,
-    ) -> ApiResponse[List[Document]]:
+    ) -> ApiResponse[List[DocumentListItem]]:
         records = self.service.list_documents(
             profile,
             company_id=company_id,
             process_id=process_id,
             include_inactive=include_inactive,
         )
-        items = [Document.model_validate(record) for record in records]
+        items = [
+            DocumentListItem.model_validate(record).model_dump(by_alias=True)
+            for record in records
+        ]
         return ResponseBuilder.success(items, "Documentos obtenidos")
 
     def get_document(self, document_id: str, profile: Dict) -> ApiResponse[DocumentDetail]:

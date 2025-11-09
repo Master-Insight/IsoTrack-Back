@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+from collections import defaultdict
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from app.libraries.customs.base_service import BaseService
 from app.libraries.exceptions.app_exceptions import AuthError, ValidationError
@@ -66,8 +67,11 @@ class DocumentService(BaseService):
             filters["active"] = True
 
         if not filters and profile.get("role") == "root":
-            return self.dao.get_all()
-        return self.dao.filter(**filters)
+            documents = self.dao.get_all()
+        else:
+            documents = self.dao.filter(**filters)
+
+        return self._hydrate_documents(documents)
 
     def get_document_detail(self, document_id: str, profile: Dict[str, Any]):
         document = self.get_by_id(document_id)
@@ -87,6 +91,130 @@ class DocumentService(BaseService):
             "current_user_read": current_user_read,
         }
         return payload
+
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
+    def _hydrate_documents(self, documents: List[Dict[str, Any]]):
+        if not documents:
+            return []
+
+        document_ids = [doc.get("id") for doc in documents if doc.get("id")]
+        versions = self.version_dao.list_for_documents(document_ids)
+        reads = self.read_dao.list_for_documents(document_ids)
+
+        versions_by_document: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+        for version in versions:
+            document_id = version.get("document_id")
+            if not document_id:
+                continue
+            version_payload = dict(version)
+            version_value = version_payload.get("version")
+            if version_value is not None:
+                version_payload["version"] = str(version_value)
+            versions_by_document[document_id].append(version_payload)
+
+        def version_sort_key(item: Dict[str, Any]):
+            raw = item.get("version")
+            if raw is None:
+                return (1, "")
+            try:
+                return (0, float(str(raw)))
+            except (TypeError, ValueError):
+                return (0, str(raw))
+
+        for document_id in versions_by_document:
+            versions_by_document[document_id].sort(key=version_sort_key)
+
+        reads_by_document: Dict[str, List[Dict[str, Any]]] = defaultdict(list)
+        for read in reads:
+            document_id = read.get("document_id")
+            if not document_id:
+                continue
+            reads_by_document[document_id].append(dict(read))
+
+        for document_id in reads_by_document:
+            reads_by_document[document_id].sort(
+                key=lambda item: item.get("read_at") or "",
+                reverse=True,
+            )
+
+        user_ids = {
+            value
+            for doc in documents
+            for value in [doc.get("owner_id")]
+            if value
+        }
+        for version in versions:
+            approved_by = version.get("approved_by")
+            if approved_by:
+                user_ids.add(approved_by)
+        for read in reads:
+            user_id = read.get("user_id")
+            if user_id:
+                user_ids.add(user_id)
+
+        user_lookup: Dict[str, Dict[str, Any]] = {}
+        if user_ids:
+            users = self.user_service.dao.get_by_ids(list(user_ids))
+            user_lookup = {user.get("id"): user for user in users if user}
+
+        def get_user_display_name(user: Optional[Dict[str, Any]]):
+            if not user:
+                return None
+            return user.get("full_name") or user.get("email") or user.get("id")
+
+        hydrated: List[Dict[str, Any]] = []
+        for document in documents:
+            document_id = document.get("id")
+            owner_id = document.get("owner_id")
+            owner = user_lookup.get(owner_id) if owner_id else None
+            owner_name = get_user_display_name(owner)
+
+            document_versions = []
+            for version in versions_by_document.get(document_id, []):
+                version_payload = dict(version)
+                approved_by = version_payload.get("approved_by")
+                if approved_by:
+                    approved_user = user_lookup.get(approved_by)
+                    version_payload["approved_by_name"] = get_user_display_name(
+                        approved_user
+                    )
+                document_versions.append(version_payload)
+
+            current_version = document_versions[-1] if document_versions else None
+
+            document_reads = []
+            for read in reads_by_document.get(document_id, []):
+                read_payload = dict(read)
+                user_id = read_payload.get("user_id")
+                if user_id:
+                    read_user = user_lookup.get(user_id)
+                    read_payload["user"] = get_user_display_name(read_user)
+                    if read_user:
+                        read_payload["position"] = read_user.get("position")
+                document_reads.append(read_payload)
+
+            tags_value = document.get("tags")
+            if tags_value is None:
+                tags = []
+            elif isinstance(tags_value, list):
+                tags = tags_value
+            else:
+                tags = [tags_value]
+
+            hydrated.append(
+                {
+                    **document,
+                    "tags": tags,
+                    "owner": owner_name,
+                    "current_version": current_version,
+                    "versions": document_versions,
+                    "reads": document_reads,
+                }
+            )
+
+        return hydrated
 
     def create_document(
         self,

@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, Optional, Sequence
 
 from app.libraries.customs.supabase_dao import CustomSupabaseDAO
 
@@ -18,3 +18,10 @@ class UserDAO(CustomSupabaseDAO):
 
     def list_by_company(self, company_id: str):
         return self.filter(company_id=company_id)
+
+    def get_by_ids(self, user_ids: Sequence[str]):
+        if not user_ids:
+            return []
+
+        query = self.table.select("*").in_("id", list(user_ids))
+        return self._execute(query, "get_by_ids")

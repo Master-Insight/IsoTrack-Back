@@ -14,6 +14,7 @@ from .schemas import (
     Document,
     DocumentCreatePayload,
     DocumentDetail,
+    DocumentListItem,
     DocumentRead,
     DocumentReadCreate,
     DocumentUpdate,
@@ -25,7 +26,7 @@ router = APIRouter()
 controller = DocumentController()
 
 
-@router.get("/", response_model=ApiResponse[List[Document]])
+@router.get("/", response_model=ApiResponse[List[DocumentListItem]])
 async def list_documents(
     company_id: Optional[str] = Query(default=None),
     process_id: Optional[str] = Query(default=None),
