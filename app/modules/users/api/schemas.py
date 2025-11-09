@@ -1,4 +1,3 @@
-# app/modules/users/api/schemas.py
 from __future__ import annotations
 
 from datetime import datetime
@@ -49,6 +48,10 @@ class User(UserBase):
 
     class Config:
         from_attributes = True
+
+
+class UserProfile(User):
+    """Schema used when returning the authenticated profile."""
 
 
 class LoginResponse(BaseModel):
