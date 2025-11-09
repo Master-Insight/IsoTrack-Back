@@ -6,8 +6,10 @@ from pydantic_settings import BaseSettings
 class Settings(BaseSettings):
 
     # --- DB ---
-    SUPABASE_URL: str
-    SUPABASE_KEY: str
+    SUPABASE_URL: str | None = None
+    SUPABASE_KEY: str | None = None
+    DATA_SOURCE: str = "supabase"
+    MOCK_DATA_PATH: str | None = None
 
     # --- Logging ---
     LOG_LEVEL: str = "INFO"
