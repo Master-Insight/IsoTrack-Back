@@ -1,0 +1,17 @@
+{
+  "user_profiles": [
+    {
+      "id": "user-1",
+      "email": "demo@example.com",
+      "company_id": "company-1",
+      "first_name": "Demo",
+      "last_name": "User"
+    }
+  ],
+  "companies": [
+    {
+      "id": "company-1",
+      "name": "Empresa Demo"
+    }
+  ]
+}

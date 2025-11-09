@@ -12,6 +12,8 @@ organizados bajo las capas `dao`, `logic` y `api`.
 ## Configuración
 
 1. Copiá el archivo `.env.example` a `.env` y completá los valores necesarios.
+   - Utilizá `DATA_SOURCE=mock` para habilitar el cliente de datos en memoria definido en `app/services/mock_supabase_client.py`.
+   - Cuando `DATA_SOURCE=mock`, podés indicar un archivo con datos iniciales mediante `MOCK_DATA_PATH` (ver `doc/mock_data.json`).
 2. Instalá dependencias:
 
 ```bash
