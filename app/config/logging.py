@@ -108,8 +108,10 @@ class ColorFormatter(logging.Formatter):
         )
 
         log_str = (
-            f"{asctime_colored} | {levelname_colored} | {record.environment} | {record.name} | "
-            f"req={getattr(record, 'request_id', '-')} | user={getattr(record, 'user_id', '-')} | "
+            # f"{asctime_colored} | {levelname_colored} | {record.environment} | {record.name} | "
+            # f"req={getattr(record, 'request_id', '-')} | user={getattr(record, 'user_id', '-')} | "
+            f"{asctime_colored} | {levelname_colored} | {record.name} | "
+            f" user={getattr(record, 'user_id', '-')} | "
             f"{record.getMessage()}"
         )
 
