@@ -1,4 +1,5 @@
-# app/modules/Blancks/api/routes.py
+"""FastAPI routes for documents."""
+
 from __future__ import annotations
 
 from typing import List, Optional
@@ -8,42 +9,86 @@ from fastapi import APIRouter, Depends, Query
 from app.libraries.auth.roles import require_role
 from app.libraries.utils.response_models import ApiResponse
 
-from .controller import BlanckController
-from .schemas import Blanck, BlanckCreate, BlanckUpdate
+from .controller import DocumentController
+from .schemas import (
+    Document,
+    DocumentCreatePayload,
+    DocumentDetail,
+    DocumentRead,
+    DocumentReadCreate,
+    DocumentUpdate,
+    DocumentVersion,
+    DocumentVersionCreate,
+)
 
 router = APIRouter()
-controller = BlanckController()
+controller = DocumentController()
 
 
-@router.get("/", response_model=ApiResponse[List[Blanck]])
-def list_Blancks(
+@router.get("/", response_model=ApiResponse[List[Document]])
+async def list_documents(
     company_id: Optional[str] = Query(default=None),
-    deal_id: Optional[str] = Query(default=None),
-    current_user=Depends(require_role(["root", "admin", "user"])),
+    process_id: Optional[str] = Query(default=None),
+    include_inactive: bool = Query(default=False),
+    profile=Depends(require_role(["root", "admin", "user"])),
 ):
-    return controller.list_Blancks(current_user, company_id, deal_id)
+    return controller.list_documents(
+        profile,
+        company_id=company_id,
+        process_id=process_id,
+        include_inactive=include_inactive,
+    )
 
 
-@router.post("/", response_model=ApiResponse[Blanck])
-def create_Blanck(
-    payload: BlanckCreate,
-    current_user=Depends(require_role(["root", "admin", "user"])),
+@router.get("/{document_id}", response_model=ApiResponse[DocumentDetail])
+async def get_document(document_id: str, profile=Depends(require_role(["root", "admin", "user"]))):
+    return controller.get_document(document_id, profile)
+
+
+@router.post("/", response_model=ApiResponse[DocumentDetail])
+async def create_document(
+    payload: DocumentCreatePayload,
+    profile=Depends(require_role(["root", "admin"])),
 ):
-    return controller.create_Blanck(current_user, payload)
+    return controller.create_document(profile, payload)
 
 
-@router.put("/{Blanck_id}", response_model=ApiResponse[Blanck])
-def update_Blanck(
-    Blanck_id: str,
-    payload: BlanckUpdate,
-    current_user=Depends(require_role(["root", "admin", "user"])),
+@router.put("/{document_id}", response_model=ApiResponse[Document])
+async def update_document(
+    document_id: str,
+    payload: DocumentUpdate,
+    profile=Depends(require_role(["root", "admin"])),
 ):
-    return controller.update_Blanck(current_user, Blanck_id, payload)
+    return controller.update_document(profile, document_id, payload)
 
 
-@router.delete("/{Blanck_id}")
-def delete_Blanck(
-    Blanck_id: str,
-    current_user=Depends(require_role(["root", "admin"])),
+@router.delete("/{document_id}", response_model=ApiResponse[dict])
+async def delete_document(
+    document_id: str,
+    profile=Depends(require_role(["root", "admin"])),
 ):
-    return controller.delete_Blanck(current_user, Blanck_id)
+    return controller.delete_document(profile, document_id)
+
+
+@router.post(
+    "/{document_id}/versions",
+    response_model=ApiResponse[DocumentVersion],
+)
+async def create_version(
+    document_id: str,
+    payload: DocumentVersionCreate,
+    profile=Depends(require_role(["root", "admin"])),
+):
+    return controller.create_version(profile, document_id, payload)
+
+
+@router.post(
+    "/{document_id}/reads",
+    response_model=ApiResponse[DocumentRead],
+)
+async def record_read(
+    document_id: str,
+    payload: DocumentReadCreate,
+    profile=Depends(require_role(["root", "admin", "user"])),
+):
+    return controller.record_read(profile, document_id, payload)

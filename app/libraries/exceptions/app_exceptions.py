@@ -1,4 +1,8 @@
 # app/libraries/exceptions/app_exceptions.py
+"""Domain specific exception classes for the backend."""
+
+from __future__ import annotations
+
 import inspect
 
 
