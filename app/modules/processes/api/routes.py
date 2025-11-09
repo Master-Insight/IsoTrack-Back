@@ -1,4 +1,5 @@
-# app/modules/Blancks/api/routes.py
+"""FastAPI routes for processes and tasks."""
+
 from __future__ import annotations
 
 from typing import List, Optional
@@ -8,42 +9,143 @@ from fastapi import APIRouter, Depends, Query
 from app.libraries.auth.roles import require_role
 from app.libraries.utils.response_models import ApiResponse
 
-from .controller import BlanckController
-from .schemas import Blanck, BlanckCreate, BlanckUpdate
+from .controller import ProcessController
+from .schemas import (
+    Process,
+    ProcessCreate,
+    ProcessDetail,
+    ProcessDocumentLink,
+    ProcessUpdate,
+    Task,
+    TaskCreate,
+    TaskUpdate,
+)
 
 router = APIRouter()
-controller = BlanckController()
+controller = ProcessController()
 
 
-@router.get("/", response_model=ApiResponse[List[Blanck]])
-def list_Blancks(
+@router.get("/", response_model=ApiResponse[List[Process]])
+async def list_processes(
     company_id: Optional[str] = Query(default=None),
-    deal_id: Optional[str] = Query(default=None),
-    current_user=Depends(require_role(["root", "admin", "user"])),
+    profile=Depends(require_role(["root", "admin", "user"])),
 ):
-    return controller.list_Blancks(current_user, company_id, deal_id)
+    return controller.list_processes(profile, company_id)
 
 
-@router.post("/", response_model=ApiResponse[Blanck])
-def create_Blanck(
-    payload: BlanckCreate,
-    current_user=Depends(require_role(["root", "admin", "user"])),
+@router.post("/", response_model=ApiResponse[Process])
+async def create_process(
+    payload: ProcessCreate,
+    profile=Depends(require_role(["root", "admin"])),
 ):
-    return controller.create_Blanck(current_user, payload)
+    return controller.create_process(profile, payload)
 
 
-@router.put("/{Blanck_id}", response_model=ApiResponse[Blanck])
-def update_Blanck(
-    Blanck_id: str,
-    payload: BlanckUpdate,
-    current_user=Depends(require_role(["root", "admin", "user"])),
+@router.get("/{process_id}", response_model=ApiResponse[ProcessDetail])
+async def get_process(
+    process_id: str,
+    profile=Depends(require_role(["root", "admin", "user"])),
 ):
-    return controller.update_Blanck(current_user, Blanck_id, payload)
+    return controller.get_process(profile, process_id)
 
 
-@router.delete("/{Blanck_id}")
-def delete_Blanck(
-    Blanck_id: str,
-    current_user=Depends(require_role(["root", "admin"])),
+@router.put("/{process_id}", response_model=ApiResponse[Process])
+async def update_process(
+    process_id: str,
+    payload: ProcessUpdate,
+    profile=Depends(require_role(["root", "admin"])),
 ):
-    return controller.delete_Blanck(current_user, Blanck_id)
+    return controller.update_process(profile, process_id, payload)
+
+
+@router.delete("/{process_id}", response_model=ApiResponse[dict])
+async def delete_process(
+    process_id: str,
+    profile=Depends(require_role(["root", "admin"])),
+):
+    return controller.delete_process(profile, process_id)
+
+
+# ---- Tasks ----
+@router.get(
+    "/{process_id}/tasks",
+    response_model=ApiResponse[List[Task]],
+)
+async def list_tasks(
+    process_id: str,
+    profile=Depends(require_role(["root", "admin", "user"])),
+):
+    return controller.list_tasks(profile, process_id)
+
+
+@router.post(
+    "/{process_id}/tasks",
+    response_model=ApiResponse[Task],
+)
+async def create_task(
+    process_id: str,
+    payload: TaskCreate,
+    profile=Depends(require_role(["root", "admin"])),
+):
+    return controller.create_task(profile, process_id, payload)
+
+
+@router.put(
+    "/{process_id}/tasks/{task_id}",
+    response_model=ApiResponse[Task],
+)
+async def update_task(
+    process_id: str,
+    task_id: str,
+    payload: TaskUpdate,
+    profile=Depends(require_role(["root", "admin"])),
+):
+    return controller.update_task(profile, process_id, task_id, payload)
+
+
+@router.delete(
+    "/{process_id}/tasks/{task_id}",
+    response_model=ApiResponse[dict],
+)
+async def delete_task(
+    process_id: str,
+    task_id: str,
+    profile=Depends(require_role(["root", "admin"])),
+):
+    return controller.delete_task(profile, process_id, task_id)
+
+
+# ---- Links ----
+@router.get(
+    "/{process_id}/links",
+    response_model=ApiResponse[List[ProcessDocumentLink]],
+)
+async def list_links(
+    process_id: str,
+    profile=Depends(require_role(["root", "admin", "user"])),
+):
+    return controller.list_links(profile, process_id)
+
+
+@router.post(
+    "/{process_id}/links",
+    response_model=ApiResponse[ProcessDocumentLink],
+)
+async def create_link(
+    process_id: str,
+    payload: ProcessDocumentLink,
+    profile=Depends(require_role(["root", "admin"])),
+):
+    return controller.create_link(profile, process_id, payload)
+
+
+@router.delete(
+    "/{process_id}/links/{link_id}",
+    response_model=ApiResponse[dict],
+)
+async def delete_link(
+    process_id: str,
+    link_id: str,
+    profile=Depends(require_role(["root", "admin"])),
+):
+    return controller.delete_link(profile, process_id, link_id)
