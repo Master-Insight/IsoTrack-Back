@@ -25,15 +25,17 @@ def create_app() -> FastAPI:
     )
 
     app.add_middleware(RequestContextLogMiddleware)
+
+    app.middleware("http")(custom_error_handler)
+
     app.add_middleware(
         CORSMiddleware,
         allow_origins=origins,
+        # allow_origins=["*"],
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
-    app.middleware("http")(custom_error_handler)
 
     register_routes(app)
     return app
