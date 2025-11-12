@@ -15,22 +15,18 @@ class DocumentVersionDAO(CustomSupabaseDAO):
         super().__init__("document_versions")
 
     def get_last_version(self, document_id: str) -> Optional[Dict[str, Any]]:
-        query = (
-            self.table.select("*")
-            .eq("document_id", document_id)
-            .order("version", desc=True)
-            .limit(1)
+        data = self.table.select("*").eq("document_id", document_id).execute().data
+        if not data:
+            return None
+        # Ordena por versión semántica como string
+        sorted_data = sorted(
+            data, key=lambda x: str(x.get("version", "")), reverse=True
         )
-        data = self._execute(query, "get_last_version")
-        return data[0] if data else None
+        return sorted_data[0]
 
     def list_for_document(self, document_id: str):
-        query = (
-            self.table.select("*")
-            .eq("document_id", document_id)
-            .order("version", desc=False)
-        )
-        return self._execute(query, "list_for_document")
+        data = self.table.select("*").eq("document_id", document_id).execute().data
+        return sorted(data, key=lambda x: str(x.get("version", "")))
 
     def list_for_documents(self, document_ids: Sequence[str]):
         if not document_ids:
