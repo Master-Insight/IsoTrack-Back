@@ -68,7 +68,7 @@ class DocumentReadDAO(CustomSupabaseDAO):
         return self._execute(query, "list_reads_for_documents")
 
     def get_user_read(
-        self, document_id: str, user_id: str, version: Optional[int] = None
+        self, document_id: str, user_id: str, version: Optional[str] = None
     ) -> Optional[Dict[str, Any]]:
         query = (
             self.table.select("*").eq("document_id", document_id).eq("user_id", user_id)

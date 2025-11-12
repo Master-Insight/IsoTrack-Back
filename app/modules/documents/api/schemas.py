@@ -82,7 +82,7 @@ class Document(DocumentBase):
 
 
 class DocumentVersionBase(BaseModel):
-    version: Optional[float] = Field(
+    version: Optional[str] = Field(
         default=None, description="Número de versión (se autoincrementa si no se envía)"
     )
     status: DocumentStatus = DocumentStatus.BORRADOR
@@ -118,7 +118,7 @@ class DocumentVersion(DocumentVersionBase):
 
 
 class DocumentReadCreate(BaseModel):
-    version: Optional[float] = Field(default=None, description="Versión leída")
+    version: Optional[str] = Field(default=None, description="Versión leída")
     read_at: Optional[datetime] = Field(
         default=None, description="Fecha de lectura (por defecto ahora)"
     )
@@ -131,7 +131,7 @@ class DocumentRead(BaseModel):
     id: Optional[str] = None
     document_id: str
     user_id: str
-    version: float
+    version: str
     read_at: datetime
     due_date: Optional[date] = None
 
@@ -148,7 +148,7 @@ class DocumentDetail(Document):
 class DocumentVersionListItem(BaseModel):
     id: str
     document_id: str
-    version: Optional[float] = None
+    version: Optional[str] = None
     status: Optional[str] = None
     file_url: Optional[str] = None
     external_url: Optional[str] = None
