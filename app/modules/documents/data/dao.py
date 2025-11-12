@@ -46,12 +46,18 @@ class DocumentReadDAO(CustomSupabaseDAO):
         super().__init__("document_reads")
 
     def upsert_read(self, payload: Dict[str, Any]):
-        query = self.table.upsert(payload, on_conflict="document_id,user_id,version")
+        """Create or update a read entry keeping only the latest per user."""
+
+        query = self.table.upsert(payload, on_conflict="document_id,user_id")
         data = self._execute(query, "upsert_read")
         return data[0] if data else None
 
     def list_for_document(self, document_id: str, user_id: Optional[str] = None):
-        query = self.table.select("*").eq("document_id", document_id)
+        query = (
+            self.table.select("*")
+            .eq("document_id", document_id)
+            .order("read_at", desc=True)
+        )
         if user_id:
             query = query.eq("user_id", user_id)
         return self._execute(query, "list_reads")
@@ -60,7 +66,12 @@ class DocumentReadDAO(CustomSupabaseDAO):
         if not document_ids:
             return []
 
-        query = self.table.select("*").in_("document_id", list(document_ids))
+        query = (
+            self.table.select("*")
+            .in_("document_id", list(document_ids))
+            .order("document_id", desc=False)
+            .order("read_at", desc=True)
+        )
         return self._execute(query, "list_reads_for_documents")
 
     def get_user_read(
