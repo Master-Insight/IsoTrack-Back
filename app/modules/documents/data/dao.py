@@ -47,8 +47,8 @@ class DocumentReadDAO(CustomSupabaseDAO):
 
     def upsert_read(self, payload: Dict[str, Any]):
         """Create or update a read entry keeping only the latest per user."""
-
-        query = self.table.upsert(payload, on_conflict="document_id,user_id")
+        serialized = self._serialize_payload(payload)
+        query = self.table.upsert(serialized, on_conflict="document_id,user_id")
         data = self._execute(query, "upsert_read")
         return data[0] if data else None
 

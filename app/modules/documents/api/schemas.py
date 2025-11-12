@@ -132,7 +132,7 @@ class DocumentRead(BaseModel):
     document_id: str
     user_id: str
     version: str
-    read_at: datetime
+    read_at: datetime = datetime.now
     due_date: Optional[date] = None
 
     class Config:

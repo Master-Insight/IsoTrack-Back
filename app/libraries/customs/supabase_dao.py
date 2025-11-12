@@ -132,7 +132,8 @@ class CustomSupabaseDAO:
 
     def update(self, record_id: Any, payload: dict):
         """Actualiza un registro existente por ID."""
-        query = self.table.update(payload).eq("id", record_id)
+        serialized = self._serialize_payload(payload)
+        query = self.table.update(serialized).eq("id", record_id)
         data = self._execute(query, "update")
         return data[0] if data else None
 
