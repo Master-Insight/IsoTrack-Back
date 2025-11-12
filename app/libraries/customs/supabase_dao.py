@@ -1,6 +1,7 @@
 # app/libraries/customs/supabase_dao.py
 from __future__ import annotations
 
+from datetime import datetime
 import logging
 from typing import Any, Dict, Optional, Sequence, Union
 
@@ -64,6 +65,20 @@ class CustomSupabaseDAO:
 
         return response.data
 
+    # --- Convierte objetos datetime en strings ISO 8601 recursivamente. ---
+    @staticmethod
+    def _serialize_payload(data: dict) -> dict:
+        def _convert(v):
+            if isinstance(v, datetime):
+                return v.isoformat()
+            if isinstance(v, list):
+                return [_convert(x) for x in v]
+            if isinstance(v, dict):
+                return {k: _convert(x) for k, x in v.items()}
+            return v
+
+        return {k: _convert(v) for k, v in data.items()}
+
     @staticmethod
     def _extract_single(data: Any) -> Any:
         if isinstance(data, list):
@@ -110,7 +125,8 @@ class CustomSupabaseDAO:
 
     def insert(self, payload: dict):
         """Inserta un nuevo registro y devuelve el registro creado."""
-        query = self.table.insert(payload)
+        serialized = self._serialize_payload(payload)
+        query = self.table.insert(serialized)
         data = self._execute(query, "insert")
         return data[0] if data else None
 

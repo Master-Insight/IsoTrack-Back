@@ -82,7 +82,7 @@ class Document(DocumentBase):
 
 
 class DocumentVersionBase(BaseModel):
-    version: Optional[int] = Field(
+    version: Optional[float] = Field(
         default=None, description="Número de versión (se autoincrementa si no se envía)"
     )
     status: DocumentStatus = DocumentStatus.BORRADOR
@@ -92,6 +92,7 @@ class DocumentVersionBase(BaseModel):
     external_url: Optional[str] = Field(
         default=None, description="URL externa opcional"
     )
+    status
     notes: Optional[str] = Field(
         default=None, description="Notas o comentarios de la versión"
     )
