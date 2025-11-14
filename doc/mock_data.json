@@ -30,7 +30,11 @@
       "created_at": "2025-11-09T21:20:58.394212Z",
       "updated_at": "2025-11-09T21:57:35.211599Z",
       "category": "Gestión de Calidad",
-      "tags": ["ISO 9001", "Manual", "Calidad"],
+      "tags": [
+        "ISO 9001",
+        "Manual",
+        "Calidad"
+      ],
       "next_review_at": "2026-05-01T00:00:00Z"
     },
     {
@@ -46,7 +50,10 @@
       "created_at": "2025-11-09T22:38:22.123865Z",
       "updated_at": "2025-11-09T22:38:22.123865Z",
       "category": "Seguridad y Salud",
-      "tags": ["SST", "Capacitaciones"],
+      "tags": [
+        "SST",
+        "Capacitaciones"
+      ],
       "next_review_at": null
     },
     {
@@ -62,10 +69,256 @@
       "created_at": "2025-11-09T22:39:23.805073Z",
       "updated_at": "2025-11-09T22:39:23.805073Z",
       "category": "Ambiental",
-      "tags": ["Residuos", "Ambiental"],
+      "tags": [
+        "Residuos",
+        "Ambiental"
+      ],
       "next_review_at": null
     }
   ],
   "document_versions": [],
-  "document_reads": []
+  "document_reads": [],
+  "processes": [
+    {
+      "id": "process-gestion-calidad",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "parent_id": null,
+      "code": "PR-GC-001",
+      "name": "Gestión del Sistema de Calidad",
+      "area": "Calidad",
+      "owner_id": "05dc56fe-10eb-41d1-9305-340de88c5296",
+      "owner": "Ana Gómez",
+      "description": "Define la planificación, seguimiento y mejora continua del sistema de gestión integrado. Coordina auditorías, indicadores y alineación estratégica.",
+      "objective": "Asegurar que el sistema ISO se mantenga vigente, con auditorías planificadas y acciones correctivas controladas.",
+      "inputs": [
+        "Plan estratégico anual",
+        "Resultados de auditorías internas y externas",
+        "Indicadores de desempeño de procesos"
+      ],
+      "outputs": [
+        "Plan de auditorías aprobado",
+        "Reuniones de revisión por la dirección",
+        "Planes de acción y seguimiento"
+      ],
+      "related_documents": [
+        "d251ad59-54e2-44ec-bd7f-174d7dca2b8c",
+        "c76db39f-939e-4086-abbf-c2ffea845873"
+      ],
+      "last_updated": "2024-04-15T14:20:00Z",
+      "maturity": "establecido"
+    },
+    {
+      "id": "process-control-documental",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "parent_id": "process-gestion-calidad",
+      "code": "PR-CD-002",
+      "name": "Control Documental",
+      "area": "Calidad",
+      "owner_id": "05dc56fe-10eb-41d1-9305-340de88c5296",
+      "owner": "Mariano López",
+      "description": "Gestiona la creación, revisión y difusión de documentos controlados, asegurando trazabilidad y acceso a versiones vigentes.",
+      "objective": "Garantizar que cada proceso disponga de documentación vigente y aprobada, minimizando brechas de información.",
+      "inputs": [
+        "Solicitudes de creación/modificación de documentos",
+        "Resultados de auditorías",
+        "Matriz de procesos"
+      ],
+      "outputs": [
+        "Documentos publicados en repositorio oficial",
+        "Registros de lectura",
+        "Alertas de revisión programada"
+      ],
+      "related_documents": [
+        "d251ad59-54e2-44ec-bd7f-174d7dca2b8c"
+      ],
+      "last_updated": "2024-04-02T16:10:00Z",
+      "maturity": "en_mejora"
+    },
+    {
+      "id": "process-gestion-residuos",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "parent_id": null,
+      "code": "PR-AMB-010",
+      "name": "Gestión de Residuos Peligrosos",
+      "area": "Ambiental",
+      "owner_id": "05dc56fe-10eb-41d1-9305-340de88c5296",
+      "owner": "Carolina Suárez",
+      "description": "Asegura el manejo seguro de residuos peligrosos, desde su generación hasta la disposición final certificada.",
+      "objective": "Cumplir requisitos legales y ambientales garantizando trazabilidad y capacitación continua del personal.",
+      "inputs": [
+        "Inventario de residuos",
+        "Legislación ambiental vigente",
+        "Registros de capacitación"
+      ],
+      "outputs": [
+        "Manifiestos firmados por gestores autorizados",
+        "Reportes mensuales de generación",
+        "Indicadores de cumplimiento legal"
+      ],
+      "related_documents": [
+        "be6f8603-366a-42df-8cd1-3077888c8053",
+        "c76db39f-939e-4086-abbf-c2ffea845873"
+      ],
+      "last_updated": "2024-03-12T08:30:00Z",
+      "maturity": "critico"
+    }
+  ],
+  "tasks": [
+    {
+      "id": "task-auditoria-interna",
+      "process_id": "process-gestion-calidad",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "code": "TA-GC-001",
+      "name": "Planificar auditorías internas",
+      "purpose": "Definir alcance, criterios y cronograma de auditorías internas según riesgos y resultados previos.",
+      "scope": "Todas las áreas del sistema de gestión",
+      "frequency": "Trimestral",
+      "responsible_roles": [
+        "Coordinador de Calidad",
+        "Auditores internos"
+      ],
+      "owner": "Ana Gómez",
+      "related_documents": [
+        "d251ad59-54e2-44ec-bd7f-174d7dca2b8c"
+      ],
+      "status": "activo",
+      "last_updated": "2024-03-01T09:00:00Z"
+    },
+    {
+      "id": "task-revision-direccion",
+      "process_id": "process-gestion-calidad",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "code": "TA-GC-002",
+      "name": "Coordinar revisión por la dirección",
+      "purpose": "Consolidar información de desempeño y riesgos para presentar a la alta dirección.",
+      "scope": "Alta dirección y líderes de proceso",
+      "frequency": "Semestral",
+      "responsible_roles": [
+        "Representante Dirección",
+        "Líderes de proceso"
+      ],
+      "owner": "Ana Gómez",
+      "related_documents": [
+        "d251ad59-54e2-44ec-bd7f-174d7dca2b8c"
+      ],
+      "status": "en_revision",
+      "last_updated": "2024-04-15T14:20:00Z"
+    },
+    {
+      "id": "task-publicar-documentos",
+      "process_id": "process-control-documental",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "code": "TA-CD-001",
+      "name": "Publicar documento aprobado",
+      "purpose": "Registrar metadatos, cargar versión firmada y notificar a los responsables.",
+      "scope": "Todos los documentos que ingresan a la plataforma",
+      "frequency": "Según demanda",
+      "responsible_roles": [
+        "Responsable Documental"
+      ],
+      "owner": "Mariano López",
+      "related_documents": [
+        "d251ad59-54e2-44ec-bd7f-174d7dca2b8c"
+      ],
+      "status": "activo",
+      "last_updated": "2024-02-22T10:45:00Z"
+    },
+    {
+      "id": "task-control-lecturas",
+      "process_id": "process-control-documental",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "code": "TA-CD-002",
+      "name": "Controlar lecturas pendientes",
+      "purpose": "Verificar que los colaboradores asignados completen la lectura de documentos críticos.",
+      "scope": "Colaboradores con perfiles críticos",
+      "frequency": "Mensual",
+      "responsible_roles": [
+        "Responsable Documental",
+        "Líderes de proceso"
+      ],
+      "owner": "Mariano López",
+      "related_documents": [
+        "c76db39f-939e-4086-abbf-c2ffea845873"
+      ],
+      "status": "pendiente",
+      "last_updated": "2024-04-02T16:10:00Z"
+    },
+    {
+      "id": "task-capacitacion-residuos",
+      "process_id": "process-gestion-residuos",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "code": "TA-AMB-001",
+      "name": "Capacitar al personal en manejo de residuos",
+      "purpose": "Asegurar que el personal conozca los riesgos y procedimientos de segregación y almacenamiento.",
+      "scope": "Personal operativo y de mantenimiento",
+      "frequency": "Anual",
+      "responsible_roles": [
+        "Responsable Ambiental",
+        "Recursos Humanos"
+      ],
+      "owner": "Carolina Suárez",
+      "related_documents": [
+        "c76db39f-939e-4086-abbf-c2ffea845873",
+        "be6f8603-366a-42df-8cd1-3077888c8053"
+      ],
+      "status": "activo",
+      "last_updated": "2024-01-18T11:00:00Z"
+    },
+    {
+      "id": "task-disposicion-final",
+      "process_id": "process-gestion-residuos",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "code": "TA-AMB-002",
+      "name": "Coordinar disposición final con gestor",
+      "purpose": "Consolidar residuos y coordinar retiro con gestor habilitado, registrando manifiestos.",
+      "scope": "Planta principal y depósitos habilitados",
+      "frequency": "Mensual",
+      "responsible_roles": [
+        "Responsable Ambiental"
+      ],
+      "owner": "Carolina Suárez",
+      "related_documents": [
+        "be6f8603-366a-42df-8cd1-3077888c8053"
+      ],
+      "status": "en_revision",
+      "last_updated": "2024-03-12T08:30:00Z"
+    }
+  ],
+  "links_process_artifacts": [
+    {
+      "id": "link-process-gestion-calidad-1",
+      "process_id": "process-gestion-calidad",
+      "document_id": "d251ad59-54e2-44ec-bd7f-174d7dca2b8c",
+      "artifact_type": "document",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b"
+    },
+    {
+      "id": "link-process-gestion-calidad-2",
+      "process_id": "process-gestion-calidad",
+      "document_id": "c76db39f-939e-4086-abbf-c2ffea845873",
+      "artifact_type": "document",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b"
+    },
+    {
+      "id": "link-process-control-documental-1",
+      "process_id": "process-control-documental",
+      "document_id": "d251ad59-54e2-44ec-bd7f-174d7dca2b8c",
+      "artifact_type": "document",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b"
+    },
+    {
+      "id": "link-process-gestion-residuos-1",
+      "process_id": "process-gestion-residuos",
+      "document_id": "be6f8603-366a-42df-8cd1-3077888c8053",
+      "artifact_type": "document",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b"
+    },
+    {
+      "id": "link-process-gestion-residuos-2",
+      "process_id": "process-gestion-residuos",
+      "document_id": "c76db39f-939e-4086-abbf-c2ffea845873",
+      "artifact_type": "document",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b"
+    }
+  ]
 }
