@@ -8,6 +8,12 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
+class MaturityLabels(str, Enum):
+    ESTABLECIDO = "establecido"
+    EN_MEJORA = "en_mejora"
+    CRITICO = "critico"
+
+
 class ProcessBase(BaseModel):
     code: Optional[str] = Field(default=None, description="Código del proceso")
     name: str = Field(..., description="Nombre del proceso")
@@ -35,7 +41,7 @@ class ProcessBase(BaseModel):
         default=None,
         description="Documentos asociados directamente al proceso",
     )
-    maturity: Optional[str] = Field(
+    maturity: Optional[MaturityLabels] = Field(
         default=None, description="Nivel de madurez según el sistema de gestión"
     )
     last_updated: Optional[datetime] = Field(
