@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from enum import Enum
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
@@ -43,9 +44,6 @@ class ProcessBase(BaseModel):
     )
     maturity: Optional[MaturityLabels] = Field(
         default=None, description="Nivel de madurez según el sistema de gestión"
-    )
-    last_updated: Optional[datetime] = Field(
-        default=None, description="Fecha de la última actualización del proceso"
     )
 
 
@@ -97,9 +95,6 @@ class TaskBase(BaseModel):
     status: Optional[str] = Field(
         default=None, description="Estado operativo de la tarea"
     )
-    last_updated: Optional[datetime] = Field(
-        default=None, description="Última actualización registrada"
-    )
 
 
 class TaskCreate(TaskBase):
@@ -117,7 +112,6 @@ class TaskUpdate(BaseModel):
     owner: Optional[str] = None
     related_documents: Optional[List[str]] = None
     status: Optional[str] = None
-    last_updated: Optional[datetime] = None
 
 
 class Task(TaskBase):
