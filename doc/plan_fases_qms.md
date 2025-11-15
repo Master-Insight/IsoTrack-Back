@@ -19,7 +19,9 @@ Objetivo: construir un sistema modular, escalable y de bajo costo para documenta
 ## 🧠 0. Conceptos Base
 
 ### Multiempresa y costos
+
 Podés desplegar **una única app frontend** y **distintas bases de datos Supabase**:
+
 - Si las empresas son **independientes** (no comparten datos ni usuarios):  
   → conviene **una base Supabase por empresa** (más simple de aislar, menos RLS).  
 - Si querés **gestión centralizada** (ver todas bajo un root global):  
@@ -48,6 +50,7 @@ En ambos casos, el **frontend es el mismo**, cambiando el `.env` o `api_url`.
 ## 📍 2. Checkpoint 1 — MVP (Documentos + Procesos + Diagramas)
 
 ### 🎯 Objetivos
+
 - Tener estructura básica de documentación y procesos.  
 - Permitir acceso multiusuario con roles.  
 - Mostrar documentos (PDF, PPT, video) y marcar lectura.  
@@ -57,7 +60,21 @@ En ambos casos, el **frontend es el mismo**, cambiando el `.env` o `api_url`.
 
 ### 🗃 Modelo de Datos (Supabase / Postgres)
 
-**Tablas principales:**
+El MVP ya cuenta con un esquema completo en Supabase. Incluye enums específicos y tablas ligadas por `company_id` para mantener el multi-tenant.
+
+**Enums principales:**
+
+```sql
+create type user_role as enum ('root','admin','editor','user');
+create type document_type as enum ('POE','Instructivo','Política','Plantilla','Presentación','Video');
+create type document_status as enum ('borrador','aprobado','publicado','vigente','en_revision');
+create type diagram_type as enum ('organigrama','flujo');
+create type document_format as enum ('pdf','video');
+create type processes_maturity as enum ('establecido','en_mejora','critico');
+create type artifact_entity_type as enum ('document','process','task','diagram');
+```
+
+**Tablas actuales:**
 
 ```sql
 -- Empresas
@@ -69,42 +86,49 @@ create table companies (
   created_at timestamptz default now()
 );
 
--- Usuarios
+-- Usuarios (perfil extendido del usuario de auth)
 create table user_profiles (
   id uuid primary key references auth.users(id),
   company_id uuid references companies(id),
   email text unique not null,
-  role text check (role in ('root','admin','editor','user')) default 'user',
+  role user_role default 'user',
   full_name text,
   position text,
   created_at timestamptz default now()
 );
 
--- Documentos
+-- Documentos y metadatos
 create table documents (
   id uuid primary key default uuid_generate_v4(),
   company_id uuid references companies(id),
   code text,
   title text not null,
-  type text check (type in ('POE','Instructivo','Política','Plantilla','Presentación','Video')),
+  type document_type not null,
   process_id uuid null,
   owner_id uuid references user_profiles(id),
   active boolean default true,
-  created_at timestamptz default now()
+  created_at timestamptz default now(),
+  description varchar,
+  category varchar,
+  tags text[],
+  "updatedAt" timestamptz default now(),
+  "nextReviewAt" timestamptz
 );
 
 -- Versiones
 create table document_versions (
   id uuid primary key default uuid_generate_v4(),
   document_id uuid references documents(id),
-  version int,
-  status text check (status in ('borrador','aprobado','publicado')),
+  version varchar,
+  status document_status default 'borrador',
   file_url text,
   external_url text,
   notes text,
   approved_by uuid references user_profiles(id),
   approved_at timestamptz,
-  created_at timestamptz default now()
+  created_at timestamptz default now(),
+  format document_format,
+  preview_url text
 );
 
 -- Lecturas
@@ -112,9 +136,9 @@ create table document_reads (
   id uuid primary key default uuid_generate_v4(),
   document_id uuid references documents(id),
   user_id uuid references user_profiles(id),
-  version int,
+  version varchar,
   read_at timestamptz,
-  due_date date null
+  due_date date
 );
 
 -- Procesos y tareas
@@ -124,31 +148,55 @@ create table processes (
   code text,
   name text,
   area text,
-  owner_id uuid references user_profiles(id)
+  owner_id uuid references user_profiles(id),
+  objective varchar,
+  inputs text[],
+  outputs text[],
+  maturity processes_maturity,
+  updated_at timestamptz default now(),
+  created_at timestamptz default now(),
+  description varchar
 );
 
 create table tasks (
   id uuid primary key default uuid_generate_v4(),
   company_id uuid references companies(id),
-  process_id uuid references processes(id),
   code text,
   name text,
   purpose text,
   scope text,
   frequency text,
-  responsible_roles text[]
+  responsible_roles text[],
+  owner_id uuid references user_profiles(id),
+  status text,
+  updated_at timestamptz default now()
 );
 
--- Diagramas
+-- Diagramas (organigramas / flujos)
 create table diagrams (
   id uuid primary key default uuid_generate_v4(),
   company_id uuid references companies(id),
   title text,
-  type text check (type in ('organigrama','flujo')),
+  type diagram_type not null
   data jsonb,
   svg_export text
 );
+
+
+-- Relaciones entre artefactos (documento ↔ proceso ↔ tarea ↔ diagrama)
+create table artifact_links (
+  id uuid primary key default uuid_generate_v4(),
+  company_id uuid references companies(id),
+  from_id uuid not null,
+  from_type artifact_entity_type not null,
+  to_id uuid not null,
+  to_type artifact_entity_type not null,
+  relation_type text,
+  created_at timestamptz default now()
+);
 ```
+
+> 🔗 `artifact_links` permite conectar cualquier combinación de artefactos del MVP (por ejemplo, relacionar un documento con el proceso al que pertenece o con un diagrama específico) y facilita las vistas cruzadas.
 
 ---
 
@@ -176,6 +224,7 @@ def mark_read(document_id: str, current_user=Depends(require_role(["user","edito
 ```
 
 **Otros módulos MVP:**
+
 - `/processes` y `/tasks`
 - `/diagrams` (guardar y exportar)
 - `/companies/config`
@@ -184,6 +233,7 @@ def mark_read(document_id: str, current_user=Depends(require_role(["user","edito
 ---
 
 ### 🧱 Entregables del Checkpoint 1
+
 - ✅ Estructura Supabase con RLS por `company_id`.  
 - ✅ API FastAPI con CRUD Documentos, Procesos, Diagramas.  
 - ✅ Front (Astro + Tailwind) con login, listado de documentos, vista de proceso, editor de organigramas.  
@@ -194,6 +244,7 @@ def mark_read(document_id: str, current_user=Depends(require_role(["user","edito
 ## ⚙️ 3. Checkpoint 2 — Versión Mediana (Calidad Lite)
 
 ### 🎯 Objetivos
+
 - Estructura base de auditorías y hallazgos.  
 - No conformidades (NCR) y CAPA básicas.  
 - Entrenamiento y competencias (lecturas + mini evaluaciones).  
@@ -295,6 +346,7 @@ def create_capa(payload: CAPACreate, current_user=Depends(require_role(["editor"
 ---
 
 ### 🧱 Entregables del Checkpoint 2
+
 - ✅ Base de datos extendida con Auditorías, CAPA y Entrenamiento.  
 - ✅ API y servicios asociados.  
 - ✅ UI para NCR y CAPA (tablero kanban básico).  
@@ -305,6 +357,7 @@ def create_capa(payload: CAPACreate, current_user=Depends(require_role(["editor"
 ## 🚀 4. Checkpoint 3 — Versión Pro (Completa / Analítica / Integración)
 
 ### 🎯 Objetivos
+
 - Flujos completos de aprobación multi-etapa.  
 - Auditorías con seguimiento de acciones.  
 - Competencias + tests con calificaciones.  
@@ -314,6 +367,7 @@ def create_capa(payload: CAPACreate, current_user=Depends(require_role(["editor"
 ---
 
 ### 🗃 Modelo de Datos (Ampliado)
+
 - `approvals` → flujo multi-etapa (`step`, `role_required`, `signed_by`, `signed_at`)  
 - `notifications` → colas de avisos por evento (documento, CAPA, vencimiento)  
 - `metrics_cache` → almacenamiento de KPIs diarios/semanales  
@@ -322,6 +376,7 @@ def create_capa(payload: CAPACreate, current_user=Depends(require_role(["editor"
 ---
 
 ### ⚙️ API (FastAPI)
+
 - `/workflow` → engine para cambio de estado con validaciones.  
 - `/notifications` → correo o webhook (Resend, WhatsApp).  
 - `/reports/*` → endpoints agregados para BI.  
@@ -329,6 +384,7 @@ def create_capa(payload: CAPACreate, current_user=Depends(require_role(["editor"
 ---
 
 ### 🧱 Entregables del Checkpoint 3
+
 - ✅ Sistema 100% multiempresa y multirol.  
 - ✅ Auditorías integradas con CAPA y verificación.  
 - ✅ Entrenamiento con resultados y reportes.  

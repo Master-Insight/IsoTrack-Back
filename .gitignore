@@ -47,3 +47,4 @@ pytest_cache/
 Thumbs.db
 
 # ---- Otros ----
+modelsupabase.txt
