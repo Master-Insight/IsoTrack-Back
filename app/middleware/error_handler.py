@@ -5,6 +5,7 @@ from typing import Any
 from fastapi import HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from app.libraries.exceptions.app_exceptions import AppError
 from app.libraries.utils.response_models import ErrorResponse
@@ -53,7 +54,9 @@ def _build_error_response(
     return JSONResponse(status_code=status_code, content=payload.dict())
 
 
-async def http_exception_handler(request: Request, exc: HTTPException):
+async def http_exception_handler(
+    request: Request, exc: HTTPException | StarletteHTTPException
+):
     """Normalize HTTPException payloads to the standard error format."""
 
     detail = exc.detail
