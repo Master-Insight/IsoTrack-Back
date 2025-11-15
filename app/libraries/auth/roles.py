@@ -3,7 +3,7 @@ from functools import lru_cache
 from typing import Any
 
 from fastapi import Depends
-from app.libraries.exceptions.app_exceptions import AuthError
+from app.libraries.exceptions.app_exceptions import AuthError, NotFoundError
 from app.modules.users.logic.services import UserService
 
 from .dependencies import get_current_user
@@ -21,9 +21,10 @@ async def get_current_profile(
 ) -> Any:
     """Recupera el perfil asociado al usuario autenticado."""
 
-    profile = user_service.get_user_by_email(current_user.email)
-    if not profile:
-        raise AuthError("Perfil no encontrado para este usuario")
+    try:
+        profile = user_service.get_user(current_user.id)
+    except NotFoundError as exc:
+        raise AuthError("Perfil no encontrado para este usuario") from exc
 
     return profile
 
