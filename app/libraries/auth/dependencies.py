@@ -3,7 +3,10 @@ from fastapi import Header
 
 from app.config.logging import set_user_id
 from app.libraries.exceptions.app_exceptions import AuthError
-from app.services.supabase_client import supabase
+from app.services.supabase_client import create_supabase_auth_client
+
+
+auth_client = create_supabase_auth_client()
 
 
 async def get_current_user(authorization: str = Header(...)):
@@ -23,7 +26,7 @@ async def get_current_user(authorization: str = Header(...)):
 
     # Validar token via Supabase
     try:
-        user = supabase.auth.get_user(token)
+        user = auth_client.auth.get_user(token)
         if not user or not user.user:
             raise AuthError("Token inválido o expirado")
         set_user_id(getattr(user.user, "id", None))

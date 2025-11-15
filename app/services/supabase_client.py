@@ -47,9 +47,7 @@ def _create_supabase_client() -> Client | MockSupabaseClient:
         return MockSupabaseClient(initial_data=initial_data)
 
     if data_source != "supabase":
-        raise RuntimeError(
-            "DATA_SOURCE must be either 'supabase' or 'mock'"
-        )
+        raise RuntimeError("DATA_SOURCE must be either 'supabase' or 'mock'")
 
     if not settings.SUPABASE_URL or not settings.SUPABASE_KEY:
         raise RuntimeError(
@@ -60,3 +58,15 @@ def _create_supabase_client() -> Client | MockSupabaseClient:
 
 
 supabase: Client | MockSupabaseClient = _create_supabase_client()
+
+
+def create_supabase_auth_client() -> Client | MockSupabaseClient:
+    """Return a fresh Supabase client for Auth operations.
+
+    Auth workflows mutate the internal session of the Supabase client
+    (por ejemplo, ``sign_in_with_password`` reemplaza el access token).
+    Al entregar un cliente nuevo para Auth evitamos que esas mutaciones
+    afecten al singleton reutilizado por los DAO para acceder a las tablas.
+    """
+
+    return _create_supabase_client()

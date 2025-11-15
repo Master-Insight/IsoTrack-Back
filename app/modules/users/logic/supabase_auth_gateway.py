@@ -7,7 +7,7 @@ from typing import Any, Dict, Optional
 
 from supabase.client import Client
 
-from app.services.supabase_client import supabase
+from app.services.supabase_client import create_supabase_auth_client
 
 
 class SupabaseAuthGateway:
@@ -19,7 +19,9 @@ class SupabaseAuthGateway:
     """
 
     def __init__(self, client: Optional[Client] = None) -> None:
-        self._client: Client = client or supabase
+        # Cada gateway tiene su propio cliente para no alterar el singleton
+        # usado por los DAO al momento de ejecutar operaciones de Auth.
+        self._client: Client = client or create_supabase_auth_client()
 
     def sign_up(self, email: str, password: str) -> Any:
         return self._client.auth.sign_up({"email": email, "password": password})
