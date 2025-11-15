@@ -17,17 +17,17 @@ class TaskDAO(CustomSupabaseDAO):
         super().__init__("tasks")
 
     def list_for_process(self, process_id: str):
-        return self.filter(process_id=process_id)
+        data = self.filter(process_id=process_id)
+        return data[0] if data else None
 
 
 class ProcessArtifactLinkDAO(CustomSupabaseDAO):
     def __init__(self) -> None:
         super().__init__("links_process_artifacts")
 
-    def get_link(
-        self, process_id: str, document_id: str
-    ) -> Optional[Dict[str, Any]]:
+    def get_link(self, process_id: str, document_id: str) -> Optional[Dict[str, Any]]:
         return self.get_first(process_id=process_id, document_id=document_id)
 
     def list_for_process(self, process_id: str):
-        return self.filter(process_id=process_id)
+        data = self.filter(process_id=process_id)
+        return data[0] if data else None
