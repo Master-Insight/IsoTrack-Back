@@ -67,10 +67,7 @@ async def delete_process(
 
 
 # ---- Tasks ----
-@router.get(
-    "/{process_id}/tasks",
-    response_model=ApiResponse[List[Task]],
-)
+@router.get("/{process_id}/tasks", response_model=ApiResponse[List[Task]])
 async def list_tasks(
     process_id: str,
     profile=Depends(require_role(["root", "admin", "user"])),
@@ -78,10 +75,7 @@ async def list_tasks(
     return controller.list_tasks(profile, process_id)
 
 
-@router.post(
-    "/{process_id}/tasks",
-    response_model=ApiResponse[Task],
-)
+@router.post("/{process_id}/tasks", response_model=ApiResponse[Task])
 async def create_task(
     process_id: str,
     payload: TaskCreate,

@@ -110,6 +110,7 @@ class TaskUpdate(BaseModel):
     owner: Optional[str] = None
     related_documents: Optional[List[str]] = None
     status: Optional[str] = None
+    updated_at: Optional[datetime] = None
 
 
 class Task(TaskBase):
