@@ -53,13 +53,11 @@ class ProcessCreate(ProcessBase):
     )
 
 
-class ProcessUpdate(BaseModel):
-    code: Optional[str] = None
+class ProcessUpdate(ProcessBase):
     name: Optional[str] = None
-    area: Optional[str] = None
-    owner_id: Optional[str] = None
-    description: Optional[str] = None
-    company_id: Optional[str] = None
+    updated_at: Optional[datetime] = Field(
+        default=None, description="Fecha de última actualización del proceso"
+    )
 
 
 class Process(ProcessBase):
