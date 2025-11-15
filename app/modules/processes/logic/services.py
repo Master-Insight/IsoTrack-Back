@@ -61,12 +61,13 @@ class ProcessService(BaseService):
             return self.dao.filter(company_id=resolved_company)
         return self.dao.get_all()
 
+    # TODO no devolver links hasta que este bien implmentado
     def get_process_detail(self, profile: Dict[str, Any], process_id: str):
         process = self.get_by_id(process_id)
         self._ensure_process_access(profile, process)
         tasks = self.task_dao.list_for_process(process_id)
-        links = self.link_dao.list_for_process(process_id)
-        payload = {**process, "tasks": tasks, "links": links}
+        # links = self.link_dao.list_for_process(process_id)
+        payload = {**process, "tasks": tasks}  # , "links": links
         return payload
 
     def create_process(
