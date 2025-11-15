@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config.logging import setup_logging
-from app.middleware.error_handler import custom_error_handler
+from app.middleware.error_handler import (
+    custom_error_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
 from app.middleware.request_context import RequestContextLogMiddleware
 from app.modules.routes import register_routes
 
@@ -27,6 +32,9 @@ def create_app() -> FastAPI:
     app.add_middleware(RequestContextLogMiddleware)
 
     app.middleware("http")(custom_error_handler)
+
+    app.add_exception_handler(HTTPException, http_exception_handler)
+    app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
     app.add_middleware(
         CORSMiddleware,
