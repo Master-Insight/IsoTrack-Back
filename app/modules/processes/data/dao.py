@@ -18,7 +18,7 @@ class TaskDAO(CustomSupabaseDAO):
 
     def list_for_process(self, process_id: str):
         data = self.filter(process_id=process_id)
-        return data[0] if data else None
+        return data
 
 
 class ProcessArtifactLinkDAO(CustomSupabaseDAO):
@@ -30,4 +30,4 @@ class ProcessArtifactLinkDAO(CustomSupabaseDAO):
 
     def list_for_process(self, process_id: str):
         data = self.filter(process_id=process_id)
-        return data[0] if data else None
+        return data

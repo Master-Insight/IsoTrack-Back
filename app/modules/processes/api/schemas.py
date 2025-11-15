@@ -9,6 +9,14 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
+class TaskStatus(str, Enum):
+    BORRADOR = "borrador"
+    APROBADO = "aprobado"
+    PUBLICADO = "publicado"
+    REVISION = "en_revision"
+    VIGENTE = "vigente"
+
+
 class MaturityLabels(str, Enum):
     ESTABLECIDO = "establecido"
     EN_MEJORA = "en_mejora"
@@ -90,9 +98,7 @@ class TaskBase(BaseModel):
     related_documents: Optional[List[str]] = Field(
         default=None, description="Documentos vinculados con la tarea"
     )
-    status: Optional[str] = Field(
-        default=None, description="Estado operativo de la tarea"
-    )
+    status: Optional[TaskStatus] = TaskStatus.BORRADOR
 
 
 class TaskCreate(TaskBase):
