@@ -6,10 +6,11 @@ from typing import Any, Dict, Optional
 
 from app.libraries.customs.base_service import BaseService
 from app.libraries.exceptions.app_exceptions import AuthError, ValidationError
-from app.modules.documents.data.dao import DocumentDAO
+from app.modules.artifact_links.api.schemas import ArtifactEntityType
+from app.modules.artifact_links.logic.services import ArtifactLinkService
 from app.modules.users.logic.services import UserService
 
-from ..data.dao import ProcessArtifactLinkDAO, ProcessDAO, TaskDAO
+from ..data.dao import ProcessDAO, TaskDAO
 
 
 class ProcessService(BaseService):
@@ -17,15 +18,13 @@ class ProcessService(BaseService):
         self,
         process_dao: Optional[ProcessDAO] = None,
         task_dao: Optional[TaskDAO] = None,
-        link_dao: Optional[ProcessArtifactLinkDAO] = None,
         user_service: Optional[UserService] = None,
-        document_dao: Optional[DocumentDAO] = None,
+        artifact_link_service: Optional[ArtifactLinkService] = None,
     ) -> None:
         super().__init__(process_dao or ProcessDAO())
         self.task_dao = task_dao or TaskDAO()
-        self.link_dao = link_dao or ProcessArtifactLinkDAO()
         self.user_service = user_service or UserService()
-        self.document_dao = document_dao or DocumentDAO()
+        self.artifact_links = artifact_link_service or ArtifactLinkService()
 
     # ------------------------------------------------------------------
     # Helpers
@@ -47,6 +46,12 @@ class ProcessService(BaseService):
         if process.get("company_id") != company_id:
             raise AuthError("No tienes permiso para este proceso")
 
+    def _ensure_task(self, process_id: str, task_id: str):
+        task = self.task_dao.get_by_id(task_id)
+        if not task or task.get("process_id") != process_id:
+            raise ValidationError("La tarea no pertenece a este proceso")
+        return task
+
     # ------------------------------------------------------------------
     # Processes
     # ------------------------------------------------------------------
@@ -61,13 +66,14 @@ class ProcessService(BaseService):
             return self.dao.filter(company_id=resolved_company)
         return self.dao.get_all()
 
-    # TODO no devolver links hasta que este bien implmentado
     def get_process_detail(self, profile: Dict[str, Any], process_id: str):
         process = self.get_by_id(process_id)
         self._ensure_process_access(profile, process)
         tasks = self.task_dao.list_for_process(process_id)
-        # links = self.link_dao.list_for_process(process_id)
-        payload = {**process, "tasks": tasks}  # , "links": links
+        links = self.artifact_links.list_for_entity(
+            profile, process_id, ArtifactEntityType.PROCESS
+        )
+        payload = {**process, "tasks": tasks, "links": links}
         return payload
 
     def create_process(
@@ -143,9 +149,7 @@ class ProcessService(BaseService):
     ):
         process = self.get_by_id(process_id)
         self._ensure_process_access(profile, process)
-        task = self.task_dao.get_by_id(task_id)
-        if not task or task.get("process_id") != process_id:
-            raise ValidationError("La tarea no pertenece a este proceso")
+        self._ensure_task(process_id, task_id)
         return self.task_dao.update(task_id, updates)
 
     def delete_task(
@@ -156,9 +160,7 @@ class ProcessService(BaseService):
     ):
         process = self.get_by_id(process_id)
         self._ensure_process_access(profile, process)
-        task = self.task_dao.get_by_id(task_id)
-        if not task or task.get("process_id") != process_id:
-            raise ValidationError("La tarea no pertenece a este proceso")
+        self._ensure_task(process_id, task_id)
         return self.task_dao.delete(task_id)
 
     # ------------------------------------------------------------------
@@ -167,7 +169,9 @@ class ProcessService(BaseService):
     def list_links(self, profile: Dict[str, Any], process_id: str):
         process = self.get_by_id(process_id)
         self._ensure_process_access(profile, process)
-        return self.link_dao.list_for_process(process_id)
+        return self.artifact_links.list_for_entity(
+            profile, process_id, ArtifactEntityType.PROCESS
+        )
 
     def create_link(
         self,
@@ -177,22 +181,22 @@ class ProcessService(BaseService):
     ):
         process = self.get_by_id(process_id)
         self._ensure_process_access(profile, process)
-        document_id = data.get("document_id")
-        if not document_id:
-            raise ValidationError("Debe indicarse un documento a vincular")
-        document = self.document_dao.get_by_id(document_id)
-        if not document:
-            raise ValidationError("Documento no encontrado")
-        if document.get("company_id") != process.get("company_id"):
-            raise AuthError("El documento pertenece a otra empresa")
-        existing = self.link_dao.get_link(process_id, document_id)
-        if existing:
-            return existing
+        target_id = data.get("target_id") or data.get("document_id")
+        if not target_id:
+            raise ValidationError("Debe indicarse un artefacto a vincular")
+        target_type_value = data.get("target_type", ArtifactEntityType.DOCUMENT)
+        if isinstance(target_type_value, ArtifactEntityType):
+            target_type_value = target_type_value.value
+        else:
+            target_type_value = str(target_type_value)
         payload = {
-            **data,
-            "process_id": process_id,
+            "from_id": process_id,
+            "from_type": ArtifactEntityType.PROCESS.value,
+            "to_id": target_id,
+            "to_type": target_type_value,
+            "relation_type": data.get("relation_type"),
         }
-        return self.link_dao.insert(payload)
+        return self.artifact_links.create_link(profile, payload)
 
     def delete_link(
         self,
@@ -202,7 +206,64 @@ class ProcessService(BaseService):
     ):
         process = self.get_by_id(process_id)
         self._ensure_process_access(profile, process)
-        link = self.link_dao.get_by_id(link_id)
-        if not link or link.get("process_id") != process_id:
+        link = self.artifact_links.get_by_id(link_id)
+        if not link:
+            raise ValidationError("El vínculo solicitado no existe")
+        if process_id not in {link.get("from_id"), link.get("to_id")}:
             raise ValidationError("El vínculo no pertenece a este proceso")
-        return self.link_dao.delete(link_id)
+        return self.artifact_links.delete_link(profile, link_id)
+
+    # ------------------------------------------------------------------
+    # Task links
+    # ------------------------------------------------------------------
+    def list_task_links(self, profile: Dict[str, Any], process_id: str, task_id: str):
+        process = self.get_by_id(process_id)
+        self._ensure_process_access(profile, process)
+        task = self._ensure_task(process_id, task_id)
+        return self.artifact_links.list_for_entity(
+            profile, task["id"], ArtifactEntityType.TASK
+        )
+
+    def create_task_link(
+        self,
+        profile: Dict[str, Any],
+        process_id: str,
+        task_id: str,
+        data: Dict[str, Any],
+    ):
+        process = self.get_by_id(process_id)
+        self._ensure_process_access(profile, process)
+        task = self._ensure_task(process_id, task_id)
+        target_id = data.get("target_id")
+        if not target_id:
+            raise ValidationError("Debe indicarse un artefacto a vincular")
+        target_type_value = data.get("target_type", ArtifactEntityType.DOCUMENT)
+        if isinstance(target_type_value, ArtifactEntityType):
+            target_type_value = target_type_value.value
+        else:
+            target_type_value = str(target_type_value)
+        payload = {
+            "from_id": task["id"],
+            "from_type": ArtifactEntityType.TASK.value,
+            "to_id": target_id,
+            "to_type": target_type_value,
+            "relation_type": data.get("relation_type"),
+        }
+        return self.artifact_links.create_link(profile, payload)
+
+    def delete_task_link(
+        self,
+        profile: Dict[str, Any],
+        process_id: str,
+        task_id: str,
+        link_id: str,
+    ):
+        process = self.get_by_id(process_id)
+        self._ensure_process_access(profile, process)
+        task = self._ensure_task(process_id, task_id)
+        link = self.artifact_links.get_by_id(link_id)
+        if not link:
+            raise ValidationError("El vínculo solicitado no existe")
+        if task["id"] not in {link.get("from_id"), link.get("to_id")}:
+            raise ValidationError("El vínculo no pertenece a esta tarea")
+        return self.artifact_links.delete_link(profile, link_id)

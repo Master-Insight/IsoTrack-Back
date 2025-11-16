@@ -8,16 +8,18 @@ from fastapi import APIRouter, Depends, Query
 
 from app.libraries.auth.roles import require_role
 from app.libraries.utils.response_models import ApiResponse
+from app.modules.artifact_links.api.schemas import ArtifactLink
 
 from .controller import ProcessController
 from .schemas import (
     Process,
     ProcessCreate,
     ProcessDetail,
-    ProcessDocumentLink,
+    ProcessLinkPayload,
     ProcessUpdate,
     Task,
     TaskCreate,
+    TaskLinkPayload,
     TaskUpdate,
 )
 
@@ -112,7 +114,7 @@ async def delete_task(
 # ---- Links ----
 @router.get(
     "/{process_id}/links",
-    response_model=ApiResponse[List[ProcessDocumentLink]],
+    response_model=ApiResponse[List[ArtifactLink]],
 )
 async def list_links(
     process_id: str,
@@ -123,11 +125,11 @@ async def list_links(
 
 @router.post(
     "/{process_id}/links",
-    response_model=ApiResponse[ProcessDocumentLink],
+    response_model=ApiResponse[ArtifactLink],
 )
 async def create_link(
     process_id: str,
-    payload: ProcessDocumentLink,
+    payload: ProcessLinkPayload,
     profile=Depends(require_role(["root", "admin"])),
 ):
     return controller.create_link(profile, process_id, payload)
@@ -143,3 +145,42 @@ async def delete_link(
     profile=Depends(require_role(["root", "admin"])),
 ):
     return controller.delete_link(profile, process_id, link_id)
+
+
+# ---- Task links ----
+@router.get(
+    "/{process_id}/tasks/{task_id}/links",
+    response_model=ApiResponse[List[ArtifactLink]],
+)
+async def list_task_links(
+    process_id: str,
+    task_id: str,
+    profile=Depends(require_role(["root", "admin", "user"])),
+):
+    return controller.list_task_links(profile, process_id, task_id)
+
+
+@router.post(
+    "/{process_id}/tasks/{task_id}/links",
+    response_model=ApiResponse[ArtifactLink],
+)
+async def create_task_link(
+    process_id: str,
+    task_id: str,
+    payload: TaskLinkPayload,
+    profile=Depends(require_role(["root", "admin"])),
+):
+    return controller.create_task_link(profile, process_id, task_id, payload)
+
+
+@router.delete(
+    "/{process_id}/tasks/{task_id}/links/{link_id}",
+    response_model=ApiResponse[dict],
+)
+async def delete_task_link(
+    process_id: str,
+    task_id: str,
+    link_id: str,
+    profile=Depends(require_role(["root", "admin"])),
+):
+    return controller.delete_task_link(profile, process_id, task_id, link_id)

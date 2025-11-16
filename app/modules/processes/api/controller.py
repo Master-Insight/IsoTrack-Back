@@ -8,14 +8,17 @@ from app.libraries.utils.response_builder import ResponseBuilder
 from app.libraries.utils.response_models import ApiResponse
 
 from ..logic.services import ProcessService
+from app.modules.artifact_links.api.schemas import ArtifactLink
+
 from .schemas import (
     Process,
     ProcessCreate,
     ProcessDetail,
-    ProcessDocumentLink,
+    ProcessLinkPayload,
     ProcessUpdate,
     Task,
     TaskCreate,
+    TaskLinkPayload,
     TaskUpdate,
 )
 
@@ -81,26 +84,50 @@ class ProcessController:
         return ResponseBuilder.success(result, "Tarea eliminada")
 
     # Links
-    def list_links(
-        self, profile: Dict, process_id: str
-    ) -> ApiResponse[List[ProcessDocumentLink]]:
+    def list_links(self, profile: Dict, process_id: str) -> ApiResponse[List[ArtifactLink]]:
         records = self.service.list_links(profile, process_id)
-        items = [ProcessDocumentLink.model_validate(record) for record in records]
+        items = [ArtifactLink.model_validate(record) for record in records]
         return ResponseBuilder.success(items, "Vínculos obtenidos")
 
     def create_link(
         self,
         profile: Dict,
         process_id: str,
-        payload: ProcessDocumentLink,
-    ) -> ApiResponse[ProcessDocumentLink]:
+        payload: ProcessLinkPayload,
+    ) -> ApiResponse[ArtifactLink]:
         data = payload.model_dump(exclude_unset=True)
         created = self.service.create_link(profile, process_id, data)
-        schema = ProcessDocumentLink.model_validate(created)
+        schema = ArtifactLink.model_validate(created)
         return ResponseBuilder.success(schema, "Vínculo creado")
 
     def delete_link(
         self, profile: Dict, process_id: str, link_id: str
     ) -> ApiResponse[Dict]:
         result = self.service.delete_link(profile, process_id, link_id)
+        return ResponseBuilder.success(result, "Vínculo eliminado")
+
+    # Task links -------------------------------------------------------
+    def list_task_links(
+        self, profile: Dict, process_id: str, task_id: str
+    ) -> ApiResponse[List[ArtifactLink]]:
+        records = self.service.list_task_links(profile, process_id, task_id)
+        items = [ArtifactLink.model_validate(record) for record in records]
+        return ResponseBuilder.success(items, "Vínculos obtenidos")
+
+    def create_task_link(
+        self,
+        profile: Dict,
+        process_id: str,
+        task_id: str,
+        payload: TaskLinkPayload,
+    ) -> ApiResponse[ArtifactLink]:
+        data = payload.model_dump(exclude_unset=True)
+        created = self.service.create_task_link(profile, process_id, task_id, data)
+        schema = ArtifactLink.model_validate(created)
+        return ResponseBuilder.success(schema, "Vínculo creado")
+
+    def delete_task_link(
+        self, profile: Dict, process_id: str, task_id: str, link_id: str
+    ) -> ApiResponse[Dict]:
+        result = self.service.delete_task_link(profile, process_id, task_id, link_id)
         return ResponseBuilder.success(result, "Vínculo eliminado")

@@ -8,6 +8,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
+from app.modules.artifact_links.api.schemas import ArtifactEntityType, ArtifactLink
+
 
 class TaskStatus(str, Enum):
     BORRADOR = "borrador"
@@ -130,20 +132,21 @@ class Task(TaskBase):
         from_attributes = True
 
 
-class ProcessDocumentLink(BaseModel):
-    id: Optional[str] = None
-    process_id: str
-    document_id: str
-    artifact_type: Optional[str] = Field(
-        default="document",
-        description="Tipo de artefacto vinculado (document, diagram, etc)",
+class ProcessLinkPayload(BaseModel):
+    target_id: str = Field(..., description="ID del artefacto a vincular")
+    target_type: ArtifactEntityType = Field(
+        default=ArtifactEntityType.DOCUMENT,
+        description="Tipo del artefacto destino",
     )
-    created_at: Optional[datetime] = None
+    relation_type: Optional[str] = Field(
+        default=None, description="Etiqueta opcional de la relación"
+    )
 
-    class Config:
-        from_attributes = True
+
+class TaskLinkPayload(ProcessLinkPayload):
+    pass
 
 
 class ProcessDetail(Process):
     tasks: List[Task] = Field(default_factory=list)
-    links: List[ProcessDocumentLink] = Field(default_factory=list)
+    links: List[ArtifactLink] = Field(default_factory=list)
