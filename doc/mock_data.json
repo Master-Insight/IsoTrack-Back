@@ -284,41 +284,97 @@
       "last_updated": "2024-03-12T08:30:00Z"
     }
   ],
-  "links_process_artifacts": [
+  "diagrams": [
+    {
+      "id": "diagram-organigrama",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "title": "Organigrama ISO",
+      "type": "organigrama",
+      "data": {
+        "nodes": [
+          {
+            "id": "root",
+            "label": "Dirección"
+          },
+          {
+            "id": "quality",
+            "label": "Calidad"
+          }
+        ],
+        "edges": [
+          {
+            "source": "root",
+            "target": "quality"
+          }
+        ]
+      },
+      "svg_export": null,
+      "created_at": "2024-04-01T10:00:00Z"
+    }
+  ],
+  "artifact_links": [
     {
       "id": "link-process-gestion-calidad-1",
-      "process_id": "process-gestion-calidad",
-      "document_id": "d251ad59-54e2-44ec-bd7f-174d7dca2b8c",
-      "artifact_type": "document",
-      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b"
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "from_id": "process-gestion-calidad",
+      "from_type": "process",
+      "to_id": "d251ad59-54e2-44ec-bd7f-174d7dca2b8c",
+      "to_type": "document",
+      "relation_type": "documento_soporte"
     },
     {
       "id": "link-process-gestion-calidad-2",
-      "process_id": "process-gestion-calidad",
-      "document_id": "c76db39f-939e-4086-abbf-c2ffea845873",
-      "artifact_type": "document",
-      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b"
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "from_id": "process-gestion-calidad",
+      "from_type": "process",
+      "to_id": "c76db39f-939e-4086-abbf-c2ffea845873",
+      "to_type": "document",
+      "relation_type": "documento_soporte"
     },
     {
       "id": "link-process-control-documental-1",
-      "process_id": "process-control-documental",
-      "document_id": "d251ad59-54e2-44ec-bd7f-174d7dca2b8c",
-      "artifact_type": "document",
-      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b"
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "from_id": "process-control-documental",
+      "from_type": "process",
+      "to_id": "d251ad59-54e2-44ec-bd7f-174d7dca2b8c",
+      "to_type": "document",
+      "relation_type": "documento_soporte"
     },
     {
       "id": "link-process-gestion-residuos-1",
-      "process_id": "process-gestion-residuos",
-      "document_id": "be6f8603-366a-42df-8cd1-3077888c8053",
-      "artifact_type": "document",
-      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b"
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "from_id": "process-gestion-residuos",
+      "from_type": "process",
+      "to_id": "be6f8603-366a-42df-8cd1-3077888c8053",
+      "to_type": "document",
+      "relation_type": "documento_soporte"
     },
     {
       "id": "link-process-gestion-residuos-2",
-      "process_id": "process-gestion-residuos",
-      "document_id": "c76db39f-939e-4086-abbf-c2ffea845873",
-      "artifact_type": "document",
-      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b"
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "from_id": "process-gestion-residuos",
+      "from_type": "process",
+      "to_id": "c76db39f-939e-4086-abbf-c2ffea845873",
+      "to_type": "document",
+      "relation_type": "documento_soporte"
+    },
+    {
+      "id": "link-diagram-process-1",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "from_id": "diagram-organigrama",
+      "from_type": "diagram",
+      "to_id": "process-gestion-calidad",
+      "to_type": "process",
+      "relation_type": "representa"
+    },
+    {
+      "id": "link-task-document-1",
+      "company_id": "7d9cf77c-bc42-405c-b211-b905d576624b",
+      "from_id": "task-auditoria-interna",
+      "from_type": "task",
+      "to_id": "d251ad59-54e2-44ec-bd7f-174d7dca2b8c",
+      "to_type": "document",
+      "relation_type": "evidencia"
     }
   ]
 }
