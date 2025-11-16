@@ -1,0 +1,4 @@
+id,company_id,title,type,data,svg_export
+diagram-organigrama,7d9cf77c-bc42-405c-b211-b905d576624b,Organigrama ISO,organigrama,"{""nodes"": [{""id"": ""root"", ""label"": ""Direcci\u00f3n""}, {""id"": ""quality"", ""label"": ""Calidad""}], ""edges"": [{""source"": ""root"", ""target"": ""quality""}]}",
+76207768-a1bc-444c-b3a3-a5f2aa880a5e,7d9cf77c-bc42-405c-b211-b905d576624b,Diagrama Sintético 1,organigrama,"{""nodes"": [{""id"": ""n1"", ""label"": ""Nodo 1""}], ""edges"": []}",
+3bd62564-f521-4072-aa22-1d0a2d449e28,7d9cf77c-bc42-405c-b211-b905d576624b,Diagrama Sintético 2,flujo,"{""nodes"": [{""id"": ""n2"", ""label"": ""Nodo 2""}], ""edges"": []}",
