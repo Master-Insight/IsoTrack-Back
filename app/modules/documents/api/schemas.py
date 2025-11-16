@@ -8,6 +8,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field, ConfigDict, field_validator
 
+from app.modules.artifact_links.api.schemas import ArtifactLink
+
 
 class DocumentType(str, Enum):
     POE = "POE"
@@ -143,6 +145,7 @@ class DocumentDetail(Document):
     versions: List[DocumentVersion] = Field(default_factory=list)
     latest_version: Optional[DocumentVersion] = None
     current_user_read: Optional[DocumentRead] = None
+    links: List[ArtifactLink] = Field(default_factory=list)
 
 
 class DocumentVersionListItem(BaseModel):

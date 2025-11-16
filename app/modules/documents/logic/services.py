@@ -8,6 +8,8 @@ from typing import Any, Dict, List, Optional
 
 from app.libraries.customs.base_service import BaseService
 from app.libraries.exceptions.app_exceptions import AuthError, ValidationError
+from app.modules.artifact_links.api.schemas import ArtifactEntityType
+from app.modules.artifact_links.logic.services import ArtifactLinkService
 from app.modules.users.logic.services import UserService
 
 from ..data.dao import DocumentDAO, DocumentReadDAO, DocumentVersionDAO
@@ -20,11 +22,13 @@ class DocumentService(BaseService):
         version_dao: Optional[DocumentVersionDAO] = None,
         read_dao: Optional[DocumentReadDAO] = None,
         user_service: Optional[UserService] = None,
+        artifact_link_service: Optional[ArtifactLinkService] = None,
     ) -> None:
         super().__init__(document_dao or DocumentDAO())
         self.version_dao = version_dao or DocumentVersionDAO()
         self.read_dao = read_dao or DocumentReadDAO()
         self.user_service = user_service or UserService()
+        self.artifact_links = artifact_link_service or ArtifactLinkService()
 
     # ------------------------------------------------------------------
     # Helpers
@@ -89,6 +93,9 @@ class DocumentService(BaseService):
             "versions": versions,
             "latest_version": latest_version,
             "current_user_read": current_user_read,
+            "links": self.artifact_links.list_for_entity(
+                profile, document_id, ArtifactEntityType.DOCUMENT
+            ),
         }
         return payload
 
