@@ -1,4 +1,5 @@
-# app/modules/Blancks/api/routes.py
+"""Routes for diagram management."""
+
 from __future__ import annotations
 
 from typing import List, Optional
@@ -7,43 +8,89 @@ from fastapi import APIRouter, Depends, Query
 
 from app.libraries.auth.roles import require_role
 from app.libraries.utils.response_models import ApiResponse
+from app.modules.artifact_links.api.schemas import ArtifactLink
 
-from .controller import BlanckController
-from .schemas import Blanck, BlanckCreate, BlanckUpdate
+from .controller import DiagramController
+from .schemas import (
+    Diagram,
+    DiagramCreate,
+    DiagramDetail,
+    DiagramLinkPayload,
+    DiagramUpdate,
+)
 
 router = APIRouter()
-controller = BlanckController()
+controller = DiagramController()
 
 
-@router.get("/", response_model=ApiResponse[List[Blanck]])
-def list_Blancks(
+@router.get("/", response_model=ApiResponse[List[Diagram]])
+async def list_diagrams(
     company_id: Optional[str] = Query(default=None),
-    deal_id: Optional[str] = Query(default=None),
-    current_user=Depends(require_role(["root", "admin", "user"])),
+    profile=Depends(require_role(["root", "admin", "user"])),
 ):
-    return controller.list_Blancks(current_user, company_id, deal_id)
+    return controller.list_diagrams(profile, company_id)
 
 
-@router.post("/", response_model=ApiResponse[Blanck])
-def create_Blanck(
-    payload: BlanckCreate,
-    current_user=Depends(require_role(["root", "admin", "user"])),
+@router.post("/", response_model=ApiResponse[Diagram])
+async def create_diagram(
+    payload: DiagramCreate, profile=Depends(require_role(["root", "admin"]))
 ):
-    return controller.create_Blanck(current_user, payload)
+    return controller.create_diagram(profile, payload)
 
 
-@router.put("/{Blanck_id}", response_model=ApiResponse[Blanck])
-def update_Blanck(
-    Blanck_id: str,
-    payload: BlanckUpdate,
-    current_user=Depends(require_role(["root", "admin", "user"])),
+@router.get("/{diagram_id}", response_model=ApiResponse[DiagramDetail])
+async def get_diagram(
+    diagram_id: str, profile=Depends(require_role(["root", "admin", "user"]))
 ):
-    return controller.update_Blanck(current_user, Blanck_id, payload)
+    return controller.get_diagram(profile, diagram_id)
 
 
-@router.delete("/{Blanck_id}")
-def delete_Blanck(
-    Blanck_id: str,
-    current_user=Depends(require_role(["root", "admin"])),
+@router.put("/{diagram_id}", response_model=ApiResponse[Diagram])
+async def update_diagram(
+    diagram_id: str,
+    payload: DiagramUpdate,
+    profile=Depends(require_role(["root", "admin"])),
 ):
-    return controller.delete_Blanck(current_user, Blanck_id)
+    return controller.update_diagram(profile, diagram_id, payload)
+
+
+@router.delete("/{diagram_id}", response_model=ApiResponse[dict])
+async def delete_diagram(
+    diagram_id: str, profile=Depends(require_role(["root", "admin"]))
+):
+    return controller.delete_diagram(profile, diagram_id)
+
+
+@router.get(
+    "/{diagram_id}/links",
+    response_model=ApiResponse[List[ArtifactLink]],
+)
+async def list_links(
+    diagram_id: str,
+    profile=Depends(require_role(["root", "admin", "user"])),
+):
+    return controller.list_links(profile, diagram_id)
+
+
+@router.post(
+    "/{diagram_id}/links",
+    response_model=ApiResponse[ArtifactLink],
+)
+async def create_link(
+    diagram_id: str,
+    payload: DiagramLinkPayload,
+    profile=Depends(require_role(["root", "admin"])),
+):
+    return controller.create_link(profile, diagram_id, payload)
+
+
+@router.delete(
+    "/{diagram_id}/links/{link_id}",
+    response_model=ApiResponse[dict],
+)
+async def delete_link(
+    diagram_id: str,
+    link_id: str,
+    profile=Depends(require_role(["root", "admin"])),
+):
+    return controller.delete_link(profile, diagram_id, link_id)
