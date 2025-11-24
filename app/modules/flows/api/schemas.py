@@ -98,6 +98,9 @@ class FlowBase(BaseModel):
     )
     tags: Optional[List[str]] = Field(default=[], description="Tags del flujo")
     area: Optional[str] = Field(default=None, description="Área o dominio asociado")
+    visibility: Optional[str] = Field(
+        default="public", description="Visibilidad: public/role-based/private"
+    )
     visibility_roles: Optional[List[str]] = Field(
         default=None, description="Roles que pueden ver el flujo"
     )
