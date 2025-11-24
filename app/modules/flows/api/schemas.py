@@ -68,8 +68,8 @@ class FlowNode(FlowNodeBase):
 
 
 class FlowEdgeBase(BaseModel):
-    source: Optional[str] = Field(default=None, description="Nodo origen")
-    target: Optional[str] = Field(default=None, description="Nodo destino")
+    source_node: Optional[str] = Field(default=None, description="Nodo origen")
+    target_node: Optional[str] = Field(default=None, description="Nodo destino")
     label: Optional[str] = Field(default=None, description="Etiqueta opcional del edge")
     metadata: Optional[Dict[str, Any]] = Field(
         default=None, description="Metadatos adicionales del edge"
@@ -77,8 +77,8 @@ class FlowEdgeBase(BaseModel):
 
 
 class FlowEdgeCreate(FlowEdgeBase):
-    source: str = Field(..., description="Nodo origen")
-    target: str = Field(..., description="Nodo destino")
+    source_node: str = Field(..., description="Nodo origen")
+    target_node: str = Field(..., description="Nodo destino")
     id: Optional[str] = Field(default=None, description="ID custom del edge (opcional)")
 
 
