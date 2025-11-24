@@ -43,10 +43,13 @@ class FlowNodeBase(BaseModel):
     metadata: Optional[FlowNodeMetadata | Dict[str, Any]] = Field(
         default=None, description="Metadatos enriquecidos para el nodo"
     )
-    position: Position = Field(..., description="Posición inicial del nodo")
+    position: Optional[Position] = Field(
+        default=None, description="Posición inicial del nodo"
+    )
 
 
 class FlowNodeCreate(FlowNodeBase):
+    position: Position = Field(..., description="Posición inicial del nodo")
     id: Optional[str] = Field(
         default=None,
         description="Permite indicar un ID custom (útil al importar desde CSV/ReactFlow)",
@@ -65,8 +68,8 @@ class FlowNode(FlowNodeBase):
 
 
 class FlowEdgeBase(BaseModel):
-    source: str = Field(..., description="Nodo origen")
-    target: str = Field(..., description="Nodo destino")
+    source: Optional[str] = Field(default=None, description="Nodo origen")
+    target: Optional[str] = Field(default=None, description="Nodo destino")
     label: Optional[str] = Field(default=None, description="Etiqueta opcional del edge")
     metadata: Optional[Dict[str, Any]] = Field(
         default=None, description="Metadatos adicionales del edge"
@@ -74,6 +77,8 @@ class FlowEdgeBase(BaseModel):
 
 
 class FlowEdgeCreate(FlowEdgeBase):
+    source: str = Field(..., description="Nodo origen")
+    target: str = Field(..., description="Nodo destino")
     id: Optional[str] = Field(default=None, description="ID custom del edge (opcional)")
 
 
