@@ -14,7 +14,9 @@ class Position(BaseModel):
 
 
 class FlowNodeMetadata(BaseModel):
-    notes: Optional[str] = Field(default=None, description="Notas contextuales del nodo")
+    notes: Optional[str] = Field(
+        default=None, description="Notas contextuales del nodo"
+    )
     artifacts: Optional[List[Dict[str, Any]]] = Field(
         default=None, description="Artefactos asociados (documentos, procesos, etc.)"
     )
@@ -32,8 +34,12 @@ class FlowNodeBase(BaseModel):
     type: str = Field(
         ..., description="Tipo del nodo (step/decision/event/process/integration)"
     )
-    system: Optional[str] = Field(default=None, description="Sistema relacionado, ej: Vtex")
-    code: Optional[str] = Field(default=None, description="Identificador opcional del nodo")
+    system: Optional[str] = Field(
+        default=None, description="Sistema relacionado, ej: Vtex"
+    )
+    code: Optional[str] = Field(
+        default=None, description="Identificador opcional del nodo"
+    )
     metadata: Optional[FlowNodeMetadata | Dict[str, Any]] = Field(
         default=None, description="Metadatos enriquecidos para el nodo"
     )
@@ -84,10 +90,13 @@ class FlowEdge(FlowEdgeBase):
 
 class FlowBase(BaseModel):
     title: str = Field(..., description="Nombre del flujo visual")
-    description: Optional[str] = Field(default=None, description="Descripción del flujo")
-    classification: Optional[str] = Field(
+    description: Optional[str] = Field(
+        default=None, description="Descripción del flujo"
+    )
+    type: Optional[str] = Field(
         default=None, description="Clasificación: principal/auxiliar/área"
     )
+    tags: Optional[List[str]] = Field(default=[], description="Tags del flujo")
     area: Optional[str] = Field(default=None, description="Área o dominio asociado")
     visibility_roles: Optional[List[str]] = Field(
         default=None, description="Roles que pueden ver el flujo"
