@@ -1,0 +1,4 @@
+id,company_id,title,description,classification,area,visibility_roles,created_at,updated_at
+"0c45c8f0-5f4f-4f80-9ddc-3f4a7b7cb1b6,7d9cf77c-bc42-405c-b211-b905d576624b,Flujo VTEX - Pago y confirmación,""Canvas ReactFlow del pago web (pasos 101-114) incluyendo decisión de error y ventana de cancelación."",principal,Ecommerce,,2024-05-10T18:10:00Z,2024-05-10T18:10:00Z"
+"9f90e55a-b3db-4ec2-8c49-a7d9c24f9b64,7d9cf77c-bc42-405c-b211-b905d576624b,Flujo Flexxus/Easy post-pago,""Secuencia de lectura en Kudos, creación en Flexxus y replicación/transferencias en Easy (115-210)."",integracion,Backoffice,,2024-05-10T18:15:00Z,2024-05-10T18:15:00Z"
+"cfe86e8a-6b3e-4eae-8c4e-8c2211d2a890,7d9cf77c-bc42-405c-b211-b905d576624b,Flujo de recupero y cancelación,""Ruta operativa ante rechazos, reenvío de link y cancelación solicitada en 5 minutos."",auxiliar,Postventa,""{\""admin\"",\""postventa\"",\""mesa_ayuda\""}"",2024-05-10T18:20:00Z,2024-05-10T18:20:00Z"
