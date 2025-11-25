@@ -1,6 +1,10 @@
 # app/middleware/error_handler.py
+"""Manejadores de errores globales para la aplicación FastAPI."""
+
+from __future__ import annotations
+
 import logging
-from typing import Any
+from typing import Any, Awaitable, Callable
 
 from fastapi import HTTPException, Request
 from fastapi.exceptions import RequestValidationError
@@ -12,33 +16,35 @@ from app.libraries.utils.response_models import ErrorResponse
 
 logger = logging.getLogger("app.errors")
 
-""" Error Handler middleware con Custom Exceptions """
 
+async def custom_error_handler(
+    request: Request, call_next: Callable[[Request], Awaitable[JSONResponse]]
+):
+    """Intercepta todas las peticiones para capturar errores controlados y genéricos."""
 
-async def custom_error_handler(request: Request, call_next):
     try:
-        response = await call_next(request)
-        return response
-    except AppError as e:
-        # Manejo de errores personalizados
+        return await call_next(request)
+
+    except AppError as error:
+        # Manejo de errores de dominio con payload estructurado
         logger.warning(
             "Error de aplicación controlado",
             extra={
-                "error": e.message,
-                "status_code": e.status_code,
-                "details": e.details,
+                "error": error.message,
+                "status_code": error.status_code,
+                "details": error.details,
             },
         )
-        return JSONResponse(status_code=e.status_code, content=e.to_dict())
+        return JSONResponse(status_code=error.status_code, content=error.to_dict())
 
-    except Exception as e:
+    except Exception as error:  # pragma: no cover - fallback defensivo
         # Errores inesperados → 500 genérico
         logger.exception(
             "Error inesperado no controlado", extra={"path": request.url.path}
         )
         content = {
             "success": False,
-            "error": str(e),
+            "error": str(error),
             "origin": "Desconocido",
             "status_code": 500,
         }
@@ -48,16 +54,16 @@ async def custom_error_handler(request: Request, call_next):
 def _build_error_response(
     message: str, *, details: Any = None, status_code: int = 400
 ) -> JSONResponse:
-    """Helper to build a JSONResponse using the standard error envelope."""
+    """Genera respuestas de error con el contrato estándar de la API."""
 
     payload = ErrorResponse(error=message, details=details)
-    return JSONResponse(status_code=status_code, content=payload.dict())
+    return JSONResponse(status_code=status_code, content=payload.model_dump())
 
 
 async def http_exception_handler(
     request: Request, exc: HTTPException | StarletteHTTPException
 ):
-    """Normalize HTTPException payloads to the standard error format."""
+    """Normaliza respuestas de :class:`HTTPException` a nuestro formato."""
 
     detail = exc.detail
 
@@ -83,25 +89,8 @@ async def http_exception_handler(
 
 
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
-    """Normalize validation errors raised by FastAPI."""
+    """Normaliza errores de validación generados por FastAPI."""
 
     return _build_error_response(
         "Datos inválidos", details=exc.errors(), status_code=422
     )
-
-
-""" Error Handler middleware sin Custom Exceptions """
-# async def custom_error_handler(request: Request, call_next):
-#     try:
-#         return await call_next(request)
-#     except Exception as e:
-#         # Si ya es HTTPException, la dejamos pasar
-#         if hasattr(e, "status_code"):
-#             content = getattr(e, "detail", str(e))
-#             return JSONResponse(status_code=e.status_code, content=content)
-
-#         # Si es otra excepción, la normalizamos
-#         error = ResponseBuilder.error("Error interno del servidor", str(e), 500)
-
-#         # No levantamos, devolvemos la respuesta directamente
-#         return JSONResponse(status_code=500, content=error)
