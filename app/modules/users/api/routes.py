@@ -16,6 +16,8 @@ from .schemas import (
     DeleteUserResponse,
     LoginResponse,
     LogoutResponse,
+    RefreshTokenRequest,
+    RefreshTokenResponse,
     User,
     UserCreate,
     UserLogin,
@@ -42,6 +44,12 @@ def login(user: UserLogin):
 @router.post("/logout", response_model=ApiResponse[LogoutResponse])
 def logout():
     return controller.logout()
+
+
+@router.post("/refresh", response_model=ApiResponse[RefreshTokenResponse])
+def refresh_token(payload: RefreshTokenRequest):
+    """Refresh access token using refresh token."""
+    return controller.refresh_token(payload)
 
 
 @router.get("/me", response_model=ApiResponse[User])

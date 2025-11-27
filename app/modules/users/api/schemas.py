@@ -71,3 +71,12 @@ class UserSummary(BaseModel):
 
 class DeleteUserResponse(BaseModel):
     user: Optional[UserSummary] = None
+
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str
+
+
+class RefreshTokenResponse(BaseModel):
+    accessToken: str
+    refresh_token: str

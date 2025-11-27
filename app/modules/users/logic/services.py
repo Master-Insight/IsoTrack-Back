@@ -148,6 +148,25 @@ class UserService(BaseService):
                 "No se pudo cerrar sesión", details={"supabase_error": error_msg}
             )
 
+    def refresh_token(self, refresh_token: str):
+        """Refresh access token using refresh token."""
+        try:
+            auth_response = self.auth_gateway.refresh_session(refresh_token)
+
+            if not auth_response.session:
+                raise AuthError("No se pudo refrescar el token")
+
+            return {
+                "accessToken": auth_response.session.access_token,
+                "refresh_token": auth_response.session.refresh_token,
+            }
+
+        except Exception as e:
+            error_msg = str(getattr(e, "message", e))
+            raise AuthError(
+                "Token inválido o expirado", details={"supabase_error": error_msg}
+            )
+
     def list_users(self, *, profile: Dict, company_id: Optional[str] = None):
         if profile.get("role") == "root" and not company_id:
             return self.dao.get_all()

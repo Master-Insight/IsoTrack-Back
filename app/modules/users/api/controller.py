@@ -12,6 +12,8 @@ from .schemas import (
     DeleteUserResponse,
     LoginResponse,
     LogoutResponse,
+    RefreshTokenRequest,
+    RefreshTokenResponse,
     User,
     UserCreate,
     UserLogin,
@@ -42,6 +44,14 @@ class UserController:
         result = self.service.logout()
         response = LogoutResponse(**result)
         return ResponseBuilder.success(response, "Sesión cerrada ✅")
+
+    def refresh_token(
+        self, payload: RefreshTokenRequest
+    ) -> ApiResponse[RefreshTokenResponse]:
+        """Refresh access token using refresh token."""
+        data = self.service.refresh_token(payload.refresh_token)
+        response = RefreshTokenResponse(**data)
+        return ResponseBuilder.success(response, "Token actualizado correctamente ✅")
 
     def get_me(self, current_user) -> ApiResponse[User]:
         record = self.service.get_user(current_user.id)

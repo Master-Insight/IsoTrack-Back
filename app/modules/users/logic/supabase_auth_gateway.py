@@ -34,6 +34,10 @@ class SupabaseAuthGateway:
     def sign_out(self) -> None:
         self._client.auth.sign_out()
 
+    def refresh_session(self, refresh_token: str) -> Any:
+        """Refresh the access token using a refresh token."""
+        return self._client.auth.refresh_session(refresh_token)
+
     def delete_user(self, user_id: str) -> Dict[str, Any]:
         return self._client.auth.admin.delete_user(user_id)
 
